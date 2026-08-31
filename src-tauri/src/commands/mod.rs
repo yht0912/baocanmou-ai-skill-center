@@ -1914,6 +1914,11 @@ pub struct FeaturedSkillDto {
     pub stars: u64,
     pub forks: u64,
     pub popularity_score: f64,
+    pub recommendation_score: f64,
+    pub recommendation_tier: String,
+    pub recommendation_reasons: Vec<String>,
+    pub review_flags: Vec<String>,
+    pub license: String,
     pub official: bool,
     pub source_url: String,
 }
@@ -1929,6 +1934,11 @@ impl From<FeaturedSkill> for FeaturedSkillDto {
             stars: s.stars,
             forks: s.forks,
             popularity_score: s.popularity_score,
+            recommendation_score: s.recommendation_score,
+            recommendation_tier: s.recommendation_tier,
+            recommendation_reasons: s.recommendation_reasons,
+            review_flags: s.review_flags,
+            license: s.license,
             official: s.official,
             source_url: s.source_url,
         }

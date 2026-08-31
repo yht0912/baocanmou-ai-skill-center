@@ -16,6 +16,10 @@ All notable changes to this project will be documented in this file.
 
 - Explore now defaults to the BaoCanMou recommendation ranking and displays recommendation tier and score. Catalog refreshes remain discovery-only and never auto-install third-party Skills.
 
+### Fixed
+
+- Preserved recommendation score, tier, reasons, review flags, and license metadata across the Rust command boundary, and added backward-compatible fallbacks so older cached catalog records cannot blank the Explore page.
+
 ## [0.1.0] - 2026-08-31
 
 ### Added

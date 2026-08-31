@@ -2,6 +2,11 @@ import { memo, useMemo, useState } from 'react'
 import { BadgeCheck, Download, Flame, Plus, Search, Star } from 'lucide-react'
 import type { TFunction } from 'i18next'
 import { getSkillDisplayNames } from './skillDisplayName'
+import {
+  getRecommendationReasons,
+  getRecommendationScore,
+  getRecommendationTier,
+} from './exploreRecommendation'
 import type { FeaturedSkillDto, ManagedSkill, OnlineSkillDto } from './types'
 
 type ExplorePageProps = {
@@ -55,7 +60,7 @@ const ExplorePage = ({
     const visible = lower
       ? featuredSkills.filter((s) => {
           const displayNames = getSkillDisplayNames(s.name, s.summary)
-          const recommendationText = s.recommendation_reasons
+          const recommendationText = getRecommendationReasons(s)
             .map((reason) => t(RECOMMENDATION_REASON_KEYS[reason] || reason))
             .join(' ')
           return (
@@ -185,6 +190,8 @@ const ExplorePage = ({
                 {displayedSkills.map((skill) => {
                   const installed = isInstalled(skill.name, skill.source_url)
                   const displayNames = getSkillDisplayNames(skill.name, skill.summary)
+                  const recommendationReasons = getRecommendationReasons(skill)
+                  const recommendationTier = getRecommendationTier(skill)
                   return (
                     <div key={skill.slug} className="explore-card">
                       <div className="explore-card-top">
@@ -192,8 +199,8 @@ const ExplorePage = ({
                           <span className="explore-rank" aria-label={t('popularityRank', { rank: skill.rank })}>
                             #{skill.rank}
                           </span>
-                          <span className="explore-tier" title={t('recommendationTier', { tier: skill.recommendation_tier })}>
-                            {skill.recommendation_tier}
+                          <span className="explore-tier" title={t('recommendationTier', { tier: recommendationTier })}>
+                            {recommendationTier}
                           </span>
                         </div>
                         <div className="explore-card-info">
@@ -231,9 +238,9 @@ const ExplorePage = ({
                       <div className="explore-card-desc">
                         {skill.summary || t('popularitySkillSummary')}
                       </div>
-                      {skill.recommendation_reasons.length > 0 ? (
+                      {recommendationReasons.length > 0 ? (
                         <div className="explore-reasons" aria-label={t('recommendationReasonLabel')}>
-                          {skill.recommendation_reasons.slice(0, 4).map((reason) => (
+                          {recommendationReasons.slice(0, 4).map((reason) => (
                             <span key={reason} className="explore-reason">
                               {t(RECOMMENDATION_REASON_KEYS[reason] || reason)}
                             </span>
@@ -252,7 +259,7 @@ const ExplorePage = ({
                           </span>
                           <span className="explore-stat explore-stat-score">
                             <Flame size={12} />
-                            <span title={t('recommendationScore')}>{skill.recommendation_score.toFixed(1)}</span>
+                            <span title={t('recommendationScore')}>{getRecommendationScore(skill).toFixed(1)}</span>
                           </span>
                         </div>
                       </div>

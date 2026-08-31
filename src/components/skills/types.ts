@@ -201,11 +201,11 @@ export type FeaturedSkillDto = {
   stars: number
   forks: number
   popularity_score: number
-  recommendation_score: number
-  recommendation_tier: string
-  recommendation_reasons: string[]
-  review_flags: string[]
-  license: string
+  recommendation_score?: number
+  recommendation_tier?: string
+  recommendation_reasons?: string[]
+  review_flags?: string[]
+  license?: string
   official: boolean
   source_url: string
 }

@@ -9,6 +9,35 @@ fn make_store() -> (tempfile::TempDir, SkillStore) {
 }
 
 #[test]
+fn featured_skill_dto_preserves_recommendation_fields() {
+    let dto = FeaturedSkillDto::from(FeaturedSkill {
+        rank: 1,
+        slug: "owner--repo--skill".to_string(),
+        name: "skill".to_string(),
+        summary: String::new(),
+        downloads: 100,
+        stars: 20,
+        forks: 2,
+        popularity_score: 82.4,
+        recommendation_score: 91.3,
+        recommendation_tier: "A".to_string(),
+        recommendation_reasons: vec![
+            "high-adoption".to_string(),
+            "actively-maintained".to_string(),
+        ],
+        review_flags: vec!["license-unverified".to_string()],
+        license: String::new(),
+        official: false,
+        source_url: "https://github.com/owner/repo".to_string(),
+    });
+
+    assert_eq!(dto.recommendation_score, 91.3);
+    assert_eq!(dto.recommendation_tier, "A");
+    assert_eq!(dto.recommendation_reasons.len(), 2);
+    assert_eq!(dto.review_flags, vec!["license-unverified"]);
+}
+
+#[test]
 fn format_anyhow_error_passthrough_prefixes() {
     for message in [
         "MULTI_SKILLS|abc",
