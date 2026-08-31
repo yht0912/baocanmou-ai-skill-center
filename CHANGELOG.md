@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - Preserved recommendation score, tier, reasons, review flags, and license metadata across the Rust command boundary, and added backward-compatible fallbacks so older cached catalog records cannot blank the Explore page.
+- Enabled signed updater artifacts explicitly in release builds while keeping ordinary local builds independent from release signing credentials.
 
 ## [0.1.0] - 2026-08-31
 
