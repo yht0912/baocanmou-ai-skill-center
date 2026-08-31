@@ -26,9 +26,9 @@ See [Intellectual Property and Original Innovation](docs/Intellectual-Property-a
 - Move deleted skills to a recoverable quarantine and stop if the move fails.
 - Audit `SKILL.md` structure, link state, Git source, and SHA-256 without changing audited files.
 - Support light, dark, and system themes.
-- Include a daily popular-skill baseline led by per-Skill installs from skills.sh and enriched with GitHub stars, forks, and freshness in a transparent composite score.
+- Include a twice-weekly BaoCanMou recommendation ranking that keeps skills.sh installs and GitHub community signals while adding maintenance, licensing clarity, metadata completeness, capability fit, and bilingual selection reasons.
 
-The ranking supports discovery only and is not a security or quality endorsement. See [Popular Skills Methodology](docs/Popular-Skills-Methodology.en.md) for the algorithm, weights, and data boundaries.
+The ranking supports discovery only; it is not a GitHub user rating, security certification, or quality endorsement. See [Popular Skills Methodology](docs/Popular-Skills-Methodology.en.md) for the algorithm and [Popular Skills Digest](docs/Popular-Skills-Digest.en.md) for the current top 30 and movement.
 
 ## Quick start
 

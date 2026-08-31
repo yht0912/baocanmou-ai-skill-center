@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-08-31
+
+### Added
+
+- BaoCanMou recommendation score v2 combines public adoption, momentum, repository maintenance, licensing clarity, metadata completeness, and strategic capability fit while preserving the separate popularity score.
+- Bilingual selection-reason badges and generated top-30 digest files make ranking decisions explainable in both Chinese and English.
+- Twice-weekly GitHub Actions refreshes now test and validate the 300-entry catalog, cap a single repository at 20 entries, and avoid timestamp-only commits.
+
+### Changed
+
+- Explore now defaults to the BaoCanMou recommendation ranking and displays recommendation tier and score. Catalog refreshes remain discovery-only and never auto-install third-party Skills.
+
 ## [0.1.0] - 2026-08-31
 
 ### Added

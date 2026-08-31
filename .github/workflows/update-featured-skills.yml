@@ -1,32 +1,52 @@
-name: Update Popular Skill Baseline
+name: Refresh BaoCanMou Skill Recommendations
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    # Monday and Thursday at 08:10 Asia/Shanghai (00:10 UTC).
+    - cron: '10 0 * * 1,4'
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: refresh-baocanmou-skill-recommendations
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Build popularity baseline
+      - name: Verify ranking logic
+        run: npm run test:featured
+
+      - name: Build recommendation baseline and bilingual digest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/fetch-featured-skills.mjs
+
+      - name: Validate generated catalog
+        run: |
+          node -e "const d=require('./featured-skills.json'); if(d.schema_version!==3||d.total!==300||d.skills.length!==300) throw new Error('invalid catalog size or schema'); if(d.skills.some((s,i)=>s.rank!==i+1||!s.recommendation_score||!Array.isArray(s.recommendation_reasons))) throw new Error('invalid recommendation fields');"
 
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add featured-skills.json
-          git diff --cached --quiet || git commit -m "chore: update popular skill baseline"
-          git push
+          git add featured-skills.json docs/包参谋热门技能观察.md docs/Popular-Skills-Digest.en.md
+          if git diff --cached --quiet; then
+            echo "No meaningful recommendation changes"
+            exit 0
+          fi
+          git commit -m "chore: refresh BaoCanMou skill recommendations"
+          git pull --rebase origin main
+          git push origin HEAD:main

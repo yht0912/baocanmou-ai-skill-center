@@ -24,6 +24,11 @@ fn json_payload() -> String {
       "stars": 10,
       "forks": 3,
       "popularity_score": 88.6,
+      "recommendation_score": 91.2,
+      "recommendation_tier": "A",
+      "recommendation_reasons": ["high-adoption", "actively-maintained"],
+      "review_flags": [],
+      "license": "MIT",
       "official": true,
       "source_url": "https://github.com/openclaw/skills/tree/main/skills/user/foo"
     },
@@ -60,6 +65,10 @@ fn parses_and_filters_empty_source_url() {
     assert_eq!(skills[0].rank, 1);
     assert_eq!(skills[0].forks, 3);
     assert_eq!(skills[0].popularity_score, 88.6);
+    assert_eq!(skills[0].recommendation_score, 91.2);
+    assert_eq!(skills[0].recommendation_tier, "A");
+    assert_eq!(skills[0].recommendation_reasons.len(), 2);
+    assert_eq!(skills[0].license, "MIT");
     assert!(skills[0].official);
 }
 

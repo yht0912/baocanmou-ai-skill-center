@@ -24,6 +24,16 @@ function formatCount(n: number): string {
   return String(n)
 }
 
+const RECOMMENDATION_REASON_KEYS: Record<string, string> = {
+  'high-adoption': 'recommendationReasons.highAdoption',
+  'fast-momentum': 'recommendationReasons.fastMomentum',
+  'community-recognition': 'recommendationReasons.communityRecognition',
+  'actively-maintained': 'recommendationReasons.activelyMaintained',
+  'official-source': 'recommendationReasons.officialSource',
+  'clear-license': 'recommendationReasons.clearLicense',
+  'baocanmou-fit': 'recommendationReasons.baocanmouFit',
+}
+
 const ExplorePage = ({
   featuredSkills,
   featuredLoading,
@@ -45,10 +55,14 @@ const ExplorePage = ({
     const visible = lower
       ? featuredSkills.filter((s) => {
           const displayNames = getSkillDisplayNames(s.name, s.summary)
+          const recommendationText = s.recommendation_reasons
+            .map((reason) => t(RECOMMENDATION_REASON_KEYS[reason] || reason))
+            .join(' ')
           return (
             s.name.toLowerCase().includes(lower) ||
             displayNames.primary.toLowerCase().includes(lower) ||
             s.summary.toLowerCase().includes(lower) ||
+            recommendationText.toLowerCase().includes(lower) ||
             s.source_url.toLowerCase().includes(lower)
           )
         })
@@ -59,7 +73,7 @@ const ExplorePage = ({
       if (popularitySort === 'stars') return right.stars - left.stars || left.rank - right.rank
       return left.rank - right.rank
     })
-  }, [featuredSkills, exploreFilter, popularitySort])
+  }, [featuredSkills, exploreFilter, popularitySort, t])
 
   const displayedSkills = useMemo(
     () => filteredSkills.slice(0, visibleCount),
@@ -174,9 +188,14 @@ const ExplorePage = ({
                   return (
                     <div key={skill.slug} className="explore-card">
                       <div className="explore-card-top">
-                        <span className="explore-rank" aria-label={t('popularityRank', { rank: skill.rank })}>
-                          #{skill.rank}
-                        </span>
+                        <div className="explore-rank-stack">
+                          <span className="explore-rank" aria-label={t('popularityRank', { rank: skill.rank })}>
+                            #{skill.rank}
+                          </span>
+                          <span className="explore-tier" title={t('recommendationTier', { tier: skill.recommendation_tier })}>
+                            {skill.recommendation_tier}
+                          </span>
+                        </div>
                         <div className="explore-card-info">
                           <div className="explore-card-name">
                             <strong>{displayNames.primary}</strong>
@@ -212,6 +231,15 @@ const ExplorePage = ({
                       <div className="explore-card-desc">
                         {skill.summary || t('popularitySkillSummary')}
                       </div>
+                      {skill.recommendation_reasons.length > 0 ? (
+                        <div className="explore-reasons" aria-label={t('recommendationReasonLabel')}>
+                          {skill.recommendation_reasons.slice(0, 4).map((reason) => (
+                            <span key={reason} className="explore-reason">
+                              {t(RECOMMENDATION_REASON_KEYS[reason] || reason)}
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
                       <div className="explore-card-bottom">
                         <div className="explore-card-stats">
                           <span className="explore-stat">
@@ -224,7 +252,7 @@ const ExplorePage = ({
                           </span>
                           <span className="explore-stat explore-stat-score">
                             <Flame size={12} />
-                            {skill.popularity_score.toFixed(1)}
+                            <span title={t('recommendationScore')}>{skill.recommendation_score.toFixed(1)}</span>
                           </span>
                         </div>
                       </div>

@@ -34,6 +34,16 @@ struct FeaturedSkillRaw {
     #[serde(default)]
     popularity_score: f64,
     #[serde(default)]
+    recommendation_score: f64,
+    #[serde(default)]
+    recommendation_tier: String,
+    #[serde(default)]
+    recommendation_reasons: Vec<String>,
+    #[serde(default)]
+    review_flags: Vec<String>,
+    #[serde(default)]
+    license: String,
+    #[serde(default)]
     official: bool,
     #[serde(default)]
     source_url: String,
@@ -49,6 +59,11 @@ pub struct FeaturedSkill {
     pub stars: u64,
     pub forks: u64,
     pub popularity_score: f64,
+    pub recommendation_score: f64,
+    pub recommendation_tier: String,
+    pub recommendation_reasons: Vec<String>,
+    pub review_flags: Vec<String>,
+    pub license: String,
     pub official: bool,
     pub source_url: String,
 }
@@ -103,17 +118,38 @@ fn parse_and_filter(json_str: &str) -> Result<Vec<FeaturedSkill>> {
         .skills
         .into_iter()
         .filter(|s| !s.source_url.is_empty())
-        .map(|s| FeaturedSkill {
-            rank: s.rank,
-            slug: s.slug,
-            name: s.name,
-            summary: s.summary,
-            downloads: s.downloads,
-            stars: s.stars,
-            forks: s.forks,
-            popularity_score: s.popularity_score,
-            official: s.official,
-            source_url: s.source_url,
+        .map(|s| {
+            let recommendation_score = if s.recommendation_score > 0.0 {
+                s.recommendation_score
+            } else {
+                s.popularity_score
+            };
+            let recommendation_tier = if s.recommendation_tier.is_empty() {
+                match recommendation_score {
+                    score if score >= 85.0 => "A".to_string(),
+                    score if score >= 75.0 => "B".to_string(),
+                    _ => "C".to_string(),
+                }
+            } else {
+                s.recommendation_tier
+            };
+            FeaturedSkill {
+                rank: s.rank,
+                slug: s.slug,
+                name: s.name,
+                summary: s.summary,
+                downloads: s.downloads,
+                stars: s.stars,
+                forks: s.forks,
+                popularity_score: s.popularity_score,
+                recommendation_score,
+                recommendation_tier,
+                recommendation_reasons: s.recommendation_reasons,
+                review_flags: s.review_flags,
+                license: s.license,
+                official: s.official,
+                source_url: s.source_url,
+            }
         })
         .collect())
 }

@@ -4,7 +4,8 @@
  * Build BaoCanMou's popular-skill baseline from public, auditable signals.
  *
  * Primary signal: anonymous install telemetry published by skills.sh.
- * Secondary signals: GitHub stars, forks, repository freshness, and official status.
+ * Secondary signals: GitHub stars, forks, repository freshness, official status,
+ * licensing clarity, documentation signals, and BaoCanMou strategic relevance.
  *
  * Popularity is not a security or quality guarantee. The generated list is a
  * discovery index only; users still choose what to inspect and install.
@@ -15,13 +16,16 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const OUTPUT_FILE = 'featured-skills.json'
+const DIGEST_ZH_FILE = 'docs/包参谋热门技能观察.md'
+const DIGEST_EN_FILE = 'docs/Popular-Skills-Digest.en.md'
 const SKILLS_SH_URL = 'https://skills.sh/'
 const MAX_SKILLS = 300
+const MAX_SKILLS_PER_REPOSITORY = 20
 const CONCURRENCY = 8
 const MAX_RATE_LIMIT_WAIT_SECS = 60
 const GITHUB_SOURCE_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/
 
-const SCORE_WEIGHTS = Object.freeze({
+const POPULARITY_WEIGHTS = Object.freeze({
   installs: 0.55,
   recentInstalls: 0.2,
   stars: 0.12,
@@ -30,7 +34,25 @@ const SCORE_WEIGHTS = Object.freeze({
   official: 0.03,
 })
 
+const RECOMMENDATION_WEIGHTS = Object.freeze({
+  installs: 0.3,
+  recentInstalls: 0.2,
+  stars: 0.1,
+  forks: 0.04,
+  freshness: 0.12,
+  official: 0.04,
+  licenseClarity: 0.08,
+  documentation: 0.04,
+  baocanmouFit: 0.08,
+})
+
 const CATEGORY_RULES = [
+  { keywords: ['ppt', 'presentation', 'slides', 'deck'], category: 'presentation' },
+  { keywords: ['video', 'remotion', 'motion', 'animation'], category: 'video' },
+  { keywords: ['chart', 'dashboard', 'analytics', 'visualization', 'csv', 'excel'], category: 'data-visualization' },
+  { keywords: ['content', 'copywriting', 'writing', 'editorial'], category: 'content' },
+  { keywords: ['research', 'paper', 'citation', 'literature'], category: 'research' },
+  { keywords: ['productivity', 'workflow', 'automation'], category: 'productivity' },
   { keywords: ['browser', 'playwright', 'puppeteer'], category: 'browser-automation' },
   { keywords: ['security', 'audit', 'vulnerability', 'pentest'], category: 'security' },
   { keywords: ['devops', 'deploy', 'infra', 'docker', 'kubernetes'], category: 'devops' },
@@ -40,6 +62,34 @@ const CATEGORY_RULES = [
   { keywords: ['design', 'figma', 'frontend', 'ui', 'ux'], category: 'design' },
   { keywords: ['ai', 'llm', 'agent', 'model'], category: 'ai-assistant' },
 ]
+
+const CATEGORY_FIT = Object.freeze({
+  presentation: 1,
+  video: 1,
+  design: 1,
+  marketing: 1,
+  content: 0.95,
+  'browser-automation': 0.95,
+  'data-visualization': 0.95,
+  development: 0.9,
+  'ai-assistant': 0.9,
+  productivity: 0.9,
+  security: 0.85,
+  research: 0.8,
+  devops: 0.75,
+  database: 0.75,
+  general: 0.55,
+})
+
+const REASON_LABELS = Object.freeze({
+  'high-adoption': { zh: '累计安装量高', en: 'High adoption' },
+  'fast-momentum': { zh: '近期增长快', en: 'Fast recent growth' },
+  'community-recognition': { zh: '社区认可度高', en: 'Strong community recognition' },
+  'actively-maintained': { zh: '持续维护', en: 'Actively maintained' },
+  'official-source': { zh: '官方来源', en: 'Official source' },
+  'clear-license': { zh: '许可证明确', en: 'Clear repository license' },
+  'baocanmou-fit': { zh: '契合包参谋能力方向', en: 'Strong BaoCanMou fit' },
+})
 
 function loadLocalEnv() {
   const envPath = resolve(import.meta.dirname, '..', '.env')
@@ -192,6 +242,67 @@ function freshnessRatio(pushedAt, now = Date.now()) {
   return Math.max(0, 1 - ageDays / 730)
 }
 
+function hasClearLicense(license) {
+  const spdx = String(license || '').trim().toUpperCase()
+  return Boolean(spdx && spdx !== 'NOASSERTION' && spdx !== 'OTHER')
+}
+
+function documentationRatio(skill) {
+  const hasDescription = Boolean(String(skill.repositoryDescription || '').trim())
+  const hasTopics = Array.isArray(skill.topics) && skill.topics.length > 0
+  return (hasDescription ? 0.6 : 0) + (hasTopics ? 0.4 : 0)
+}
+
+function baocanmouFitRatio(category) {
+  return CATEGORY_FIT[category] ?? CATEGORY_FIT.general
+}
+
+function roundScore(value) {
+  return Math.round(value * 1000) / 10
+}
+
+function recommendationTier(score) {
+  if (score >= 85) return 'A'
+  if (score >= 75) return 'B'
+  return 'C'
+}
+
+function recommendationReasons(ratios, skill) {
+  const reasons = []
+  if (ratios.installs >= 0.72) reasons.push('high-adoption')
+  if (ratios.recentInstalls >= 0.68) reasons.push('fast-momentum')
+  if (ratios.freshness >= 0.72) reasons.push('actively-maintained')
+  const differentiators = [
+    [skill.official, 'official-source'],
+    [ratios.baocanmouFit >= 0.95, 'baocanmou-fit'],
+    [ratios.licenseClarity === 1, 'clear-license'],
+    [ratios.stars >= 0.7, 'community-recognition'],
+  ]
+  for (const [matches, reason] of differentiators) {
+    if (matches && reasons.length < 4) reasons.push(reason)
+  }
+
+  if (reasons.length === 0) {
+    const strongest = [
+      ['high-adoption', ratios.installs],
+      ['fast-momentum', ratios.recentInstalls],
+      ['community-recognition', ratios.stars],
+      ['actively-maintained', ratios.freshness],
+      ['baocanmou-fit', ratios.baocanmouFit],
+    ].sort((left, right) => right[1] - left[1])[0]
+    reasons.push(strongest[0])
+  }
+  return reasons.slice(0, 4)
+}
+
+function reviewFlags(ratios, skill) {
+  const flags = []
+  if (ratios.licenseClarity === 0) flags.push('license-unverified')
+  if (ratios.freshness < 0.15) flags.push('stale-repository')
+  if (!String(skill.repositoryDescription || '').trim()) flags.push('limited-repository-metadata')
+  return flags
+}
+
 export function scoreAndRankSkills(skills, now = Date.now()) {
   const maxInstalls = Math.max(0, ...skills.map((skill) => skill.installs))
   const maxRecent = Math.max(0, ...skills.map((skill) => skill.recentInstalls))
@@ -200,15 +311,40 @@ export function scoreAndRankSkills(skills, now = Date.now()) {
 
   return skills
     .map((skill) => {
-      const weighted =
-        SCORE_WEIGHTS.installs * logRatio(skill.installs, maxInstalls) +
-        SCORE_WEIGHTS.recentInstalls * logRatio(skill.recentInstalls, maxRecent) +
-        SCORE_WEIGHTS.stars * logRatio(skill.stars, maxStars) +
-        SCORE_WEIGHTS.forks * logRatio(skill.forks, maxForks) +
-        SCORE_WEIGHTS.freshness * freshnessRatio(skill.pushedAt, now) +
-        SCORE_WEIGHTS.official * (skill.official ? 1 : 0)
+      const category = skill.category || classify(
+        skill.name,
+        skill.source,
+        skill.repositoryDescription,
+        skill.topics,
+      )
+      const ratios = {
+        installs: logRatio(skill.installs, maxInstalls),
+        recentInstalls: logRatio(skill.recentInstalls, maxRecent),
+        stars: logRatio(skill.stars, maxStars),
+        forks: logRatio(skill.forks, maxForks),
+        freshness: freshnessRatio(skill.pushedAt, now),
+        official: skill.official ? 1 : 0,
+        licenseClarity: hasClearLicense(skill.license) ? 1 : 0,
+        documentation: documentationRatio(skill),
+        baocanmouFit: baocanmouFitRatio(category),
+      }
+      const popularityWeighted = Object.entries(POPULARITY_WEIGHTS)
+        .reduce((sum, [key, weight]) => sum + weight * ratios[key], 0)
+      const recommendationWeighted = Object.entries(RECOMMENDATION_WEIGHTS)
+        .reduce((sum, [key, weight]) => sum + weight * ratios[key], 0)
+      const popularityScore = roundScore(popularityWeighted)
+      const recommendationScore = roundScore(recommendationWeighted)
 
-      return { ...skill, score: Math.round(weighted * 1000) / 10 }
+      return {
+        ...skill,
+        category,
+        score: recommendationScore,
+        popularityScore,
+        recommendationScore,
+        recommendationTier: recommendationTier(recommendationScore),
+        recommendationReasons: recommendationReasons(ratios, skill),
+        reviewFlags: reviewFlags(ratios, skill),
+      }
     })
     .sort(
       (left, right) =>
@@ -219,10 +355,24 @@ export function scoreAndRankSkills(skills, now = Date.now()) {
     .map((skill, index) => ({ ...skill, rank: index + 1 }))
 }
 
-function classify(name, source) {
-  const text = `${name} ${source}`.toLowerCase()
+function classify(name, source, description = '', topics = []) {
+  const text = `${name} ${source} ${description} ${Array.isArray(topics) ? topics.join(' ') : ''}`.toLowerCase()
   return CATEGORY_RULES.find((rule) => rule.keywords.some((keyword) => text.includes(keyword)))
     ?.category || 'general'
+}
+
+export function selectWithRepositoryCap(rankedSkills, limit = MAX_SKILLS, cap = MAX_SKILLS_PER_REPOSITORY) {
+  const selected = []
+  const sourceCounts = new Map()
+  for (const skill of rankedSkills) {
+    const source = String(skill.source || '').toLowerCase()
+    const count = sourceCounts.get(source) || 0
+    if (count >= cap) continue
+    selected.push(skill)
+    sourceCounts.set(source, count + 1)
+    if (selected.length === limit) break
+  }
+  return selected.map((skill, index) => ({ ...skill, rank: index + 1 }))
 }
 
 function readExistingRepoMetadata() {
@@ -230,6 +380,21 @@ function readExistingRepoMetadata() {
   try {
     const data = JSON.parse(readFileSync(OUTPUT_FILE, 'utf-8'))
     const result = new Map()
+    for (const [source, repo] of Object.entries(data.repositories || {})) {
+      if (!GITHUB_SOURCE_PATTERN.test(source) || !repo || typeof repo !== 'object') continue
+      result.set(source, {
+        stargazers_count: Number(repo.stars) || 0,
+        forks_count: Number(repo.forks) || 0,
+        pushed_at: repo.pushed_at || null,
+        created_at: repo.created_at || null,
+        description: repo.description || null,
+        topics: Array.isArray(repo.topics) ? repo.topics : [],
+        license: repo.license ? { spdx_id: repo.license } : null,
+        open_issues_count: Number(repo.open_issues) || 0,
+        archived: Boolean(repo.archived),
+        disabled: Boolean(repo.disabled),
+      })
+    }
     for (const skill of data.skills || []) {
       const source = skill.source || String(skill.source_url || '')
         .replace('https://github.com/', '')
@@ -239,6 +404,11 @@ function readExistingRepoMetadata() {
         stargazers_count: Number(skill.stars) || 0,
         forks_count: Number(skill.forks) || 0,
         pushed_at: skill.updated_at || null,
+        created_at: skill.created_at || null,
+        description: skill.repository_description || null,
+        topics: Array.isArray(skill.topics) ? skill.topics : [],
+        license: skill.license ? { spdx_id: skill.license } : null,
+        open_issues_count: Number(skill.open_issues) || 0,
         archived: false,
         disabled: false,
       })
@@ -249,7 +419,72 @@ function readExistingRepoMetadata() {
   }
 }
 
+function readExistingOutput() {
+  if (!existsSync(OUTPUT_FILE)) return null
+  try {
+    return JSON.parse(readFileSync(OUTPUT_FILE, 'utf-8'))
+  } catch {
+    return null
+  }
+}
+
+function stableSnapshot(value) {
+  if (!value || typeof value !== 'object') return value
+  const copy = structuredClone(value)
+  delete copy.updated_at
+  return copy
+}
+
+function snapshotsEqual(left, right) {
+  return JSON.stringify(stableSnapshot(left)) === JSON.stringify(stableSnapshot(right))
+}
+
+function writeIfChanged(file, content) {
+  if (existsSync(file) && readFileSync(file, 'utf-8') === content) return false
+  writeFileSync(file, content)
+  return true
+}
+
+function formatInteger(value) {
+  return new Intl.NumberFormat('en-US').format(value)
+}
+
+function escapeMarkdown(value) {
+  return String(value || '').replaceAll('|', '\\|').replaceAll('\n', ' ')
+}
+
+function movementLabel(skill, previousRanks, language) {
+  const previous = previousRanks.get(skill.slug)
+  if (!previous) return language === 'zh' ? '新入榜' : 'New'
+  const delta = previous - skill.rank
+  if (delta === 0) return '—'
+  return delta > 0 ? `↑${delta}` : `↓${Math.abs(delta)}`
+}
+
+function renderDigest(output, previousOutput, language) {
+  const zh = language === 'zh'
+  const previousRanks = new Map((previousOutput?.skills || []).map((skill) => [skill.slug, skill.rank]))
+  const title = zh ? '# 包参谋热门技能观察' : '# BaoCanMou Popular Skills Digest'
+  const intro = zh
+    ? '本页由公开数据定期生成，展示包参谋推荐榜前 30 名及其主要入选理由。推荐分用于筛选，不是安全认证；任何第三方 Skill 安装前仍需人工查看源码、依赖和权限。'
+    : 'This page is generated periodically from public data. It shows the top 30 BaoCanMou recommendations and the main selection reasons. The recommendation score is a discovery filter, not a security certification; inspect source, dependencies, and permissions before installation.'
+  const headers = zh
+    ? '| 排名 | 技能 | 来源 | 安装量 | Stars | 推荐分 | 变化 | 入选理由 |\n| ---: | --- | --- | ---: | ---: | ---: | ---: | --- |'
+    : '| Rank | Skill | Source | Installs | Stars | Score | Move | Why selected |\n| ---: | --- | --- | ---: | ---: | ---: | ---: | --- |'
+  const rows = output.skills.slice(0, 30).map((skill) => {
+    const reasons = skill.recommendation_reasons
+      .map((reason) => REASON_LABELS[reason]?.[language] || reason)
+      .join(zh ? '、' : ', ')
+    return `| ${skill.rank} | [${escapeMarkdown(skill.name)}](${skill.skills_sh_url}) | ${escapeMarkdown(skill.source)} | ${formatInteger(skill.downloads)} | ${formatInteger(skill.stars)} | ${skill.recommendation_score.toFixed(1)} | ${movementLabel(skill, previousRanks, language)} | ${escapeMarkdown(reasons)} |`
+  }).join('\n')
+  const details = zh
+    ? `- 更新时间：${output.updated_at}\n- 榜单规模：${output.total}\n- 单仓库最多入选：${MAX_SKILLS_PER_REPOSITORY}\n- 数据源：skills.sh、GitHub REST API\n- 包参谋：<https://www.bcmsj.com> · 开源交流学习使用`
+    : `- Updated: ${output.updated_at}\n- Catalog size: ${output.total}\n- Maximum entries per repository: ${MAX_SKILLS_PER_REPOSITORY}\n- Sources: skills.sh and GitHub REST API\n- BaoCanMou: <https://www.bcmsj.com> · Open source for exchange and learning`
+  return `${title}\n\n> ${intro}\n\n${details}\n\n${headers}\n${rows}\n`
+}
+
 async function main() {
+  const existingOutput = readExistingOutput()
   console.log('Fetching the public skills.sh all-time leaderboard...')
   const html = await fetchText(SKILLS_SH_URL)
   if (!html) throw new Error('unable to fetch skills.sh leaderboard')
@@ -279,15 +514,20 @@ async function main() {
         stars: Number(repo?.stargazers_count) || 0,
         forks: Number(repo?.forks_count) || 0,
         pushedAt: repo?.pushed_at || null,
+        createdAt: repo?.created_at || null,
+        repositoryDescription: repo?.description || '',
+        topics: Array.isArray(repo?.topics) ? repo.topics : [],
+        license: repo?.license?.spdx_id || '',
+        openIssues: Number(repo?.open_issues_count) || 0,
         archived: Boolean(repo?.archived || repo?.disabled),
       }
     })
     .filter((skill) => !skill.archived)
 
-  const ranked = scoreAndRankSkills(enriched).slice(0, MAX_SKILLS)
+  const ranked = selectWithRepositoryCap(scoreAndRankSkills(enriched))
   const categories = new Set()
   const skills = ranked.map((skill) => {
-    const category = classify(skill.name, skill.source)
+    const category = skill.category
     categories.add(category)
     return {
       rank: skill.rank,
@@ -298,33 +538,73 @@ async function main() {
       recent_downloads: skill.recentInstalls,
       stars: skill.stars,
       forks: skill.forks,
-      popularity_score: skill.score,
+      popularity_score: skill.popularityScore,
+      recommendation_score: skill.recommendationScore,
+      recommendation_tier: skill.recommendationTier,
+      recommendation_reasons: skill.recommendationReasons,
+      review_flags: skill.reviewFlags,
       official: skill.official,
       category,
       source: skill.source,
       source_url: `https://github.com/${skill.source}`,
       skills_sh_url: `https://skills.sh/${skill.source}/${skill.skillId}`,
       updated_at: skill.pushedAt,
+      license: skill.license,
     }
   })
 
+  const repositories = Object.fromEntries(
+    [...metadata.entries()]
+      .filter(([, repo]) => repo)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([source, repo]) => [source, {
+        stars: Number(repo.stargazers_count) || 0,
+        forks: Number(repo.forks_count) || 0,
+        pushed_at: repo.pushed_at || null,
+        created_at: repo.created_at || null,
+        description: repo.description || '',
+        topics: Array.isArray(repo.topics) ? repo.topics : [],
+        license: repo.license?.spdx_id || '',
+        open_issues: Number(repo.open_issues_count) || 0,
+        archived: Boolean(repo.archived),
+        disabled: Boolean(repo.disabled),
+      }]),
+  )
+
   const output = {
-    schema_version: 2,
+    schema_version: 3,
     updated_at: new Date().toISOString(),
     total: skills.length,
     methodology: {
-      name: 'baocanmou-popularity-v1',
-      note_zh: '综合热度仅用于发现，不代表安全、质量或官方推荐。',
-      note_en: 'Popularity supports discovery; it is not a security, quality, or endorsement rating.',
+      name: 'baocanmou-recommendation-v2',
+      note_zh: '包参谋推荐分综合公开热度、维护、许可证清晰度和能力方向，仅用于发现，不代表安全认证。',
+      note_en: 'The BaoCanMou recommendation score combines public adoption, maintenance, licensing clarity, and capability fit for discovery only; it is not a security certification.',
       sources: ['https://skills.sh/', 'https://api.github.com/'],
-      weights: SCORE_WEIGHTS,
+      popularity_weights: POPULARITY_WEIGHTS,
+      recommendation_weights: RECOMMENDATION_WEIGHTS,
+      selection_rules: {
+        maximum_skills: MAX_SKILLS,
+        maximum_skills_per_repository: MAX_SKILLS_PER_REPOSITORY,
+        archived_or_disabled_repositories: 'excluded',
+        installation_policy: 'manual-review-only',
+      },
     },
     categories: [...categories].sort(),
+    repositories,
     skills,
   }
 
-  writeFileSync(OUTPUT_FILE, `${JSON.stringify(output, null, 2)}\n`)
-  console.log(`Wrote ${skills.length} ranked skills to ${OUTPUT_FILE}`)
+  if (snapshotsEqual(existingOutput, output)) {
+    console.log('No meaningful ranking or metadata change; keeping the existing snapshot timestamp')
+    if (!existsSync(DIGEST_ZH_FILE)) writeIfChanged(DIGEST_ZH_FILE, renderDigest(existingOutput, null, 'zh'))
+    if (!existsSync(DIGEST_EN_FILE)) writeIfChanged(DIGEST_EN_FILE, renderDigest(existingOutput, null, 'en'))
+    return
+  }
+
+  writeIfChanged(OUTPUT_FILE, `${JSON.stringify(output, null, 2)}\n`)
+  writeIfChanged(DIGEST_ZH_FILE, renderDigest(output, existingOutput, 'zh'))
+  writeIfChanged(DIGEST_EN_FILE, renderDigest(output, existingOutput, 'en'))
+  console.log(`Wrote ${skills.length} ranked skills and bilingual digests`)
 }
 
 const isDirectRun = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href
