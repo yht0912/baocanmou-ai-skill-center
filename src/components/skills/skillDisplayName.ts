@@ -71,6 +71,7 @@ export const skillChineseNameMap: Record<string, string> = {
   'doubt-driven-development': '怀疑驱动开发',
   'ecommerce-visual-copywriting': '电商视觉文案',
   'elegant-chinese-courseware-ppt': '雅致中文课程 PPT',
+  eli5: '5 岁也能懂',
   'elon-musk-perspective': '埃隆·马斯克思维视角',
   'embedded-captions': '视频内嵌字幕',
   'engineering-sketch-illustration': '工程草图说明图',

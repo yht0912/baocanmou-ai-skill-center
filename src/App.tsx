@@ -1409,6 +1409,10 @@ function App() {
     }
   }, [featuredSkills.length, invokeTauri, isTauri])
 
+  useEffect(() => {
+    void loadFeaturedSkills()
+  }, [loadFeaturedSkills])
+
   const handleViewChange = useCallback(
     (view: 'myskills' | 'explore' | 'manage') => {
       setShowAddModal(false)
@@ -3518,6 +3522,7 @@ function App() {
         activeView={activeView}
         managementTab={managementTab}
         skillCount={managedSkills.length}
+        featuredSkillCount={featuredSkills.length}
         tagCount={tags.length}
         toolCount={toolStatus?.tools.length ?? 0}
         updateCount={pendingUpdateCount}

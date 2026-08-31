@@ -23,6 +23,14 @@ describe('skill display names', () => {
     expect(getSkillDisplayNames('ponytail').primary).toBe('ponytail 专项能力')
   })
 
+  it('adds a Chinese display name for the newly managed ELI5 skill', () => {
+    expect(getSkillDisplayNames('eli5')).toEqual({
+      primary: '5 岁也能懂',
+      secondary: 'eli5',
+      translated: true,
+    })
+  })
+
   it('contains curated translations for the current managed inventory', () => {
     expect(Object.keys(skillChineseNameMap).length).toBeGreaterThanOrEqual(200)
   })

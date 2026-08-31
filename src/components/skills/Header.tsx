@@ -14,6 +14,7 @@ type HeaderProps = {
   activeView: 'myskills' | 'explore' | 'detail' | 'settings' | 'manage'
   managementTab: ManagementTab
   skillCount: number
+  featuredSkillCount: number
   tagCount: number
   toolCount: number
   updateCount: number
@@ -44,6 +45,7 @@ const Header = ({
   activeView,
   managementTab,
   skillCount,
+  featuredSkillCount,
   tagCount,
   toolCount,
   updateCount,
@@ -162,10 +164,11 @@ const Header = ({
           className={activeView === 'explore' ? 'active' : ''}
           type="button"
           onClick={() => onViewChange('explore')}
-          title={collapsed ? t('addSkills') : undefined}
+          title={collapsed ? t('navPopularLibrary') : undefined}
         >
           <span className="nav-dot" aria-hidden="true" />
-          <span>{t('addSkills')}</span>
+          <span>{t('navPopularLibrary')}</span>
+          {featuredSkillCount > 0 ? <em>{featuredSkillCount}</em> : null}
         </button>
       </nav>
 
