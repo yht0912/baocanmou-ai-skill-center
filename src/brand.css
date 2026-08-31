@@ -1,0 +1,982 @@
+/* 包参谋 AI 技能中心 · 静默清单
+   高频桌面工具优先：暖白、轻侧栏、列表资产、单一行动点。 */
+
+html,
+body {
+  background: var(--bg-app);
+}
+
+body::before,
+.skills-sidebar::after,
+.window-titlebar::before {
+  display: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-ui);
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent-primary) 78%, #8a6500);
+  outline-offset: 2px;
+}
+
+::selection {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--accent-primary) 42%, transparent);
+}
+
+.skills-app {
+  grid-template-columns: 184px minmax(0, 1fr);
+  background: var(--bg-app);
+}
+
+.skills-app.sidebar-collapsed {
+  grid-template-columns: 60px minmax(0, 1fr);
+}
+
+/* 原生窗口标题栏 */
+.window-titlebar {
+  height: 36px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-header);
+  backdrop-filter: blur(14px);
+}
+
+.window-titlebar > strong {
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.titlebar-version-status {
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0;
+}
+
+.titlebar-update-action {
+  border-radius: 5px;
+}
+
+/* 侧栏：与内容同属一个安静平面 */
+.skills-sidebar {
+  padding: 16px 12px 12px;
+  border-right: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--bg-element) 72%, var(--bg-app));
+  box-shadow: none;
+}
+
+.sidebar-brand {
+  height: 62px;
+  grid-template-columns: 32px minmax(0, 1fr) 24px;
+  gap: 9px;
+  padding: 2px 2px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sidebar-logo {
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+}
+
+.sidebar-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sidebar-brand-copy strong {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-brand-copy span {
+  overflow: hidden;
+  color: var(--text-tertiary);
+  font-size: 10px;
+  line-height: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-collapse {
+  width: 24px;
+  height: 24px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: var(--text-tertiary);
+  background: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sidebar-collapse:hover {
+    border-color: var(--border-subtle);
+    color: var(--text-primary);
+    background: var(--bg-panel);
+  }
+}
+
+.sidebar-section-label {
+  height: 37px;
+  padding: 15px 7px 7px;
+  color: var(--text-tertiary);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.sidebar-nav {
+  gap: 3px;
+}
+
+.sidebar-nav button,
+.sidebar-settings {
+  height: 36px;
+  gap: 9px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 400;
+  transition: color 140ms var(--ease-out), background-color 140ms var(--ease-out), border-color 140ms var(--ease-out);
+}
+
+.sidebar-nav button > span:not(.nav-dot),
+.sidebar-settings > span:not(.nav-dot) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-dot {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 5px;
+  border-radius: 50%;
+  background: var(--border-strong);
+}
+
+.sidebar-nav button.active,
+.sidebar-settings.active {
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+  background: var(--bg-panel);
+  box-shadow: 0 1px 2px rgb(32 32 28 / 0.025);
+  font-weight: 500;
+}
+
+.sidebar-nav button.active .nav-dot,
+.sidebar-settings.active .nav-dot {
+  background: var(--accent-primary);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sidebar-nav button:hover,
+  .sidebar-settings:hover {
+    border-color: color-mix(in srgb, var(--border-subtle) 84%, transparent);
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--bg-panel) 64%, transparent);
+    transform: none;
+  }
+}
+
+.sidebar-nav em {
+  height: 18px;
+  min-width: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  color: var(--text-tertiary);
+  background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.sidebar-nav button.active em {
+  color: var(--text-secondary);
+  background: var(--bg-element);
+}
+
+.skills-sidebar.collapsed {
+  padding: 16px 8px 12px;
+}
+
+.skills-sidebar.collapsed .sidebar-brand {
+  height: 58px;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.skills-sidebar.collapsed .sidebar-logo {
+  width: 32px;
+  height: 32px;
+}
+
+.skills-sidebar.collapsed .sidebar-collapse {
+  right: -13px;
+  width: 24px;
+  height: 24px;
+  border-color: var(--border-subtle);
+  color: var(--text-secondary);
+  background: var(--bg-panel);
+}
+
+.skills-sidebar.collapsed .sidebar-nav {
+  width: 42px;
+  gap: 3px;
+}
+
+.skills-sidebar.collapsed .sidebar-nav button,
+.skills-sidebar.collapsed .sidebar-settings {
+  width: 42px;
+  justify-content: center;
+  padding: 0;
+}
+
+.skills-sidebar.collapsed .nav-dot {
+  width: 7px;
+  height: 7px;
+  flex-basis: 7px;
+}
+
+/* 主工作区 */
+.skills-main {
+  padding: 22px 28px 24px;
+  background: var(--bg-app);
+}
+
+.skills-app.sidebar-collapsed .skills-main {
+  padding-right: 28px;
+  padding-left: 28px;
+}
+
+.dashboard-stack {
+  gap: 14px;
+}
+
+/* 资产概览：标题、状态和主操作，不再做 Hero。 */
+.asset-overview {
+  display: grid;
+  gap: 14px;
+  padding: 2px 0 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.asset-overview-main,
+.asset-overview-meta,
+.asset-counts {
+  display: flex;
+  align-items: center;
+}
+
+.asset-overview-main,
+.asset-overview-meta {
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.asset-overview-copy h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: clamp(22px, 2vw, 26px);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.asset-overview-copy p {
+  margin: 4px 0 0;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+
+.asset-add-button {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 13px;
+  border: 1px solid var(--text-primary);
+  border-radius: 6px;
+  color: var(--bg-panel);
+  background: var(--text-primary);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 140ms var(--ease-out), background-color 140ms var(--ease-out), transform 100ms var(--ease-out);
+}
+
+.asset-add-button span {
+  color: var(--accent-primary);
+  font-size: 16px;
+  line-height: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .asset-add-button:hover {
+    color: var(--text-primary);
+    background: var(--accent-primary);
+  }
+  .asset-add-button:hover span { color: inherit; }
+}
+
+.asset-add-button:active {
+  transform: scale(0.98);
+}
+
+.asset-counts {
+  gap: 16px;
+  color: var(--text-tertiary);
+  font-size: 10px;
+}
+
+.asset-counts > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.asset-counts strong {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.asset-health {
+  min-height: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  color: var(--text-tertiary);
+  background: transparent;
+  font-size: 10px;
+}
+
+.asset-health:not(:disabled) {
+  cursor: pointer;
+}
+
+.asset-health i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.asset-health.healthy { color: var(--status-success); }
+.asset-health.error { color: var(--status-error); }
+.asset-health.idle { color: var(--text-tertiary); }
+
+.asset-source {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.asset-source span {
+  flex: 0 0 auto;
+  color: var(--text-tertiary);
+  font-size: 9px;
+}
+
+.asset-source code {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 搜索与筛选：搜索优先，其余操作退后。 */
+.filter-bar {
+  min-height: 42px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.filter-title {
+  display: none;
+}
+
+.filter-actions {
+  width: 100%;
+  gap: 6px;
+}
+
+.filter-actions .search-container {
+  order: -1;
+  min-width: 220px;
+  flex: 1 1 340px;
+}
+
+.filter-actions .search-input {
+  width: 100%;
+  height: 38px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 0 12px 0 37px;
+  color: var(--text-primary);
+  background: var(--bg-panel);
+  font-size: 12px;
+  box-shadow: none;
+}
+
+.filter-actions .search-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.filter-actions .search-input:focus {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-primary) 46%, transparent);
+}
+
+.search-icon-abs {
+  color: var(--text-tertiary);
+  stroke-width: 1.7;
+}
+
+.filter-actions .sort-btn,
+.filter-actions .bulk-mode-btn,
+.filter-actions .tag-filter-btn,
+.view-mode-toggle {
+  height: 34px;
+  border-color: var(--border-subtle);
+  border-radius: 5px;
+  color: var(--text-secondary);
+  background: transparent;
+  box-shadow: none;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.filter-actions .sort-btn,
+.filter-actions .bulk-mode-btn,
+.filter-actions .tag-filter-btn {
+  min-width: auto;
+  padding: 0 9px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .filter-actions .sort-btn:hover,
+  .filter-actions .bulk-mode-btn:hover,
+  .filter-actions .tag-filter-btn:hover,
+  .view-mode-toggle button:hover {
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+    background: var(--bg-panel);
+  }
+}
+
+.filter-actions .bulk-mode-btn.active,
+.filter-actions .tag-filter-btn.active {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+  background: var(--bg-panel);
+}
+
+.view-mode-toggle {
+  padding: 2px;
+}
+
+.view-mode-toggle button {
+  width: 29px;
+  height: 28px;
+  border-radius: 4px;
+}
+
+.view-mode-toggle button.active {
+  color: var(--text-primary);
+  background: var(--bg-element);
+}
+
+.tag-filter-menu {
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--bg-panel);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 技能列表 */
+.skills-list {
+  gap: 8px;
+}
+
+.skills-table.list-view {
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--bg-panel);
+}
+
+.skills-table.cards-view {
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 8px;
+}
+
+.skill-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--bg-panel);
+  box-shadow: none;
+  transition: color 140ms var(--ease-out), background-color 140ms var(--ease-out), border-color 140ms var(--ease-out), opacity 140ms var(--ease-out);
+}
+
+.skill-card::after {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .skill-card:hover {
+    border-color: var(--border-strong);
+    background: color-mix(in srgb, var(--bg-element) 46%, var(--bg-panel));
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+.skill-card.bulk-selected {
+  border-color: color-mix(in srgb, var(--accent-primary) 72%, var(--border-strong));
+  background: color-mix(in srgb, var(--accent-soft-bg) 58%, var(--bg-panel));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-primary) 28%, transparent);
+}
+
+.skill-icon {
+  border: 0;
+  border-radius: 5px;
+  color: var(--text-secondary);
+  background: var(--bg-element);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .skill-card:hover .skill-icon {
+    color: var(--text-primary);
+    background: var(--bg-element-hover);
+  }
+}
+
+.skill-name {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.skill-bilingual-name {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.skill-bilingual-name .skill-name {
+  max-width: 100%;
+}
+
+.skill-name-original {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.skill-title-line .skill-bilingual-name {
+  flex: 1 1 auto;
+}
+
+.skill-source-copy,
+.skill-actions-col button {
+  border-radius: 5px;
+}
+
+.skill-source-copy:hover:not(:disabled) > svg {
+  color: var(--text-primary);
+}
+
+.skill-tag-pill,
+.scope-badge {
+  border-radius: 999px;
+  font-size: 10px;
+}
+
+.skill-tag-pill {
+  background: var(--bg-element);
+}
+
+.scope-badge.global,
+.scope-badge.project {
+  border-color: var(--border-subtle);
+  color: var(--text-secondary);
+  background: transparent;
+}
+
+.skill-tool-avatars button {
+  border-radius: 5px;
+  background: var(--success-soft-bg);
+}
+
+.skill-switch {
+  width: 34px;
+  min-width: 34px;
+  height: 20px;
+  flex-basis: 34px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 2px;
+  background: var(--bg-element);
+}
+
+.skill-switch span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  box-shadow: 0 1px 2px rgb(32 32 28 / 0.14);
+}
+
+.skill-switch.enabled {
+  border-color: var(--text-primary);
+  background: var(--text-primary);
+}
+
+.skill-switch.enabled span {
+  background: var(--accent-primary);
+  transform: translateX(14px);
+}
+
+.list-view .skill-card {
+  min-height: 66px;
+  grid-template-columns: minmax(200px, 1.45fr) minmax(110px, .68fr) minmax(145px, .82fr) 38px 90px;
+  gap: 8px;
+  padding: 8px 11px;
+  border-width: 0 0 1px;
+  border-color: var(--border-subtle);
+  border-radius: 0;
+}
+
+.list-view .skill-card:last-child {
+  border-bottom: 0;
+}
+
+.list-view .skill-card.bulk-mode {
+  padding-left: 43px;
+}
+
+.list-view .skill-icon {
+  width: 30px;
+  height: 30px;
+  flex-basis: 30px;
+}
+
+.list-view .skill-description {
+  display: none;
+}
+
+.list-view .skill-tools-block {
+  padding-left: 0;
+  border-left: 0;
+}
+
+/* 清单只呈现同步结论；逐工具开关留在卡片视图与详情页。 */
+.list-view .skill-tools-block > span {
+  display: block;
+  white-space: nowrap;
+}
+
+.list-view .skill-tool-avatars {
+  display: none;
+}
+
+.list-view .skill-actions-col {
+  opacity: 0;
+  transition: opacity 120ms var(--ease-out);
+}
+
+.list-view .skill-card:hover .skill-actions-col,
+.list-view .skill-card:focus-within .skill-actions-col {
+  opacity: 1;
+}
+
+.list-view .skill-card-meta {
+  justify-content: flex-start;
+}
+
+.cards-view .skill-card {
+  min-height: 145px;
+  padding: 13px;
+}
+
+.cards-view .skill-description {
+  color: var(--text-tertiary);
+}
+
+.discovered-banner {
+  min-height: 44px;
+  padding: 7px 10px;
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent-primary);
+  border-radius: 6px;
+  background: var(--bg-panel);
+}
+
+.banner-icon {
+  width: 20px;
+  height: 20px;
+  background: transparent;
+}
+
+.banner-icon span {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--accent-primary);
+}
+
+.banner-content {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.banner-title {
+  font-weight: 500;
+}
+
+.banner-subtitle {
+  color: var(--text-tertiary);
+  font-size: 10px;
+}
+
+.discovered-banner-actions {
+  gap: 5px;
+}
+
+.discovered-banner-actions .btn {
+  height: 30px;
+  padding: 0 9px;
+  font-size: 10px;
+}
+
+.btn {
+  border-radius: 6px;
+  font-weight: 500;
+  box-shadow: none;
+}
+
+.btn-primary,
+.btn-warning {
+  border-color: var(--text-primary);
+  color: var(--bg-panel);
+  background: var(--text-primary);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover:not(:disabled),
+  .btn-warning:hover:not(:disabled) {
+    border-color: var(--accent-primary);
+    color: var(--text-primary);
+    background: var(--accent-primary);
+  }
+}
+
+.bulk-action-bar {
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--bg-panel);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 次级页面沿用同一安静语言。 */
+.detail-header,
+.settings-hero,
+.explore-hero {
+  border-bottom-color: var(--border-subtle);
+}
+
+.detail-skill-name,
+.settings-title-copy h1,
+.explore-hero h1,
+.manage-title {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.detail-skill-name strong,
+.detail-skill-name small,
+.explore-card-name strong,
+.explore-card-name small,
+.pick-item-title strong,
+.pick-item-title small,
+.import-bilingual-name strong,
+.import-bilingual-name small {
+  display: block;
+}
+
+.detail-skill-name small,
+.explore-card-name small,
+.pick-item-title small,
+.import-bilingual-name small {
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.explore-card-name strong,
+.pick-item-title strong,
+.import-bilingual-name strong {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.explore-card,
+.tool-management-card,
+.tools-summary-card,
+.tags-create-card,
+.updates-control,
+.updates-summary,
+.settings-card,
+.tools-panel,
+.tags-list-panel,
+.tags-side-panel,
+.updates-card,
+.updates-followups {
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.explore-card:hover,
+.tool-management-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: none;
+  transform: none;
+}
+
+.settings-card-icon,
+.updates-icon,
+.add-disclosure-icon {
+  border-radius: 6px;
+  color: var(--text-primary);
+  background: var(--accent-primary);
+}
+
+.settings-input,
+.settings-select,
+.explore-search-input,
+.modal input,
+.modal textarea,
+.modal select {
+  border-radius: 6px;
+}
+
+.tag-filter-menu,
+.modal,
+[data-sonner-toast] {
+  border-radius: 9px !important;
+}
+
+@media (max-width: 1080px) {
+  .skills-app { grid-template-columns: 168px minmax(0, 1fr); }
+  .skills-main { padding-right: 20px; padding-left: 20px; }
+  .modal-backdrop:has(.add-skill-modal) { left: 168px; }
+  .list-view .skill-card {
+    grid-template-columns: minmax(190px, 1.45fr) minmax(90px, .62fr) 82px 36px 64px;
+  }
+  .list-view .skill-actions-col button {
+    width: 26px;
+    height: 26px;
+    flex-basis: 26px;
+  }
+  .list-view .skill-actions-col button:nth-child(2) { display: none; }
+}
+
+@media (max-width: 940px) {
+  .skills-app { grid-template-columns: 156px minmax(0, 1fr); }
+  .sidebar-brand { grid-template-columns: 30px minmax(0, 1fr) 20px; gap: 7px; }
+  .sidebar-logo { width: 30px; height: 30px; }
+  .sidebar-brand-copy strong { font-size: 12px; }
+  .skills-main { padding: 18px 16px 20px; }
+  .asset-source { display: none; }
+  .filter-actions .bulk-mode-btn { display: none; }
+  .view-mode-toggle { display: none; }
+  .sidebar-nav em { display: none; }
+  .list-view .skill-card {
+    grid-template-columns: minmax(190px, 1.5fr) 62px 72px 34px 28px;
+  }
+  .list-view .skill-tags-inline,
+  .list-view .skill-updated { display: none; }
+  .list-view .skill-card-meta { justify-content: center; }
+  .list-view .skill-actions-col button:not(:first-child) { display: none; }
+  .list-view .skill-actions-col { opacity: 1; }
+  .modal-backdrop:has(.add-skill-modal) { left: 156px; }
+}
+
+@media (max-width: 760px) {
+  .asset-overview-meta { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .asset-source { width: 100%; max-width: none; }
+  .filter-actions { flex-wrap: wrap; }
+  .filter-actions .search-container { flex-basis: 100%; }
+  .skills-table.cards-view { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-nav button,
+  .sidebar-settings,
+  .asset-add-button,
+  .skill-card,
+  .btn {
+    transition: none;
+  }
+}

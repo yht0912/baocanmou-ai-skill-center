@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+:root {
+  --bg-app: #f7f6f2;
+  --bg-panel: #ffffff;
+  --bg-element: #f1f0eb;
+  --bg-element-hover: #e9e8e2;
+  --bg-header: rgba(247, 246, 242, 0.96);
+  --border-subtle: #e2e0d8;
+  --border-strong: #c7c4b9;
+  --text-primary: #20201c;
+  --text-secondary: #55544e;
+  --text-tertiary: #85827a;
+  --accent-primary: #e5b91e;
+  --accent-primary-hover: #d4a811;
+  --accent-primary-fg: #20201c;
+  --accent-soft-bg: #faf2cf;
+  --accent-soft-border: #ddc66f;
+  --success-soft-bg: #e6f2ec;
+  --success-soft-border: #b9d5c7;
+  --status-success: #217058;
+  --status-warning: #9a6a00;
+  --status-error: #b63e32;
+  --status-info: #346a7a;
+  --warning-soft-bg: #fff4bd;
+  --warning-soft-border: #e2bd24;
+  --danger-soft-bg: #f8e8e3;
+  --danger-soft-border: #dfb8ae;
+  --danger-soft-bg-strong: #f4dcd6;
+  --accent-copper: #9a7a00;
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC",
+    "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-mono: "SFMono-Regular", ui-monospace, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --shadow-sm: 0 0 0 1px rgb(32 32 28 / 0.06), 0 2px 8px rgb(32 32 28 / 0.035);
+  --shadow-lg: 0 0 0 1px rgb(32 32 28 / 0.08), 0 18px 48px rgb(32 32 28 / 0.1);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+:root[data-theme='dark'] {
+  --bg-app: #171714;
+  --bg-panel: #1f1f1b;
+  --bg-element: #292923;
+  --bg-element-hover: #32322c;
+  --bg-header: rgba(23, 23, 20, 0.96);
+  --border-subtle: #34342e;
+  --border-strong: #4a4a42;
+  --text-primary: #f4f1e9;
+  --text-secondary: #c0bdb4;
+  --text-tertiary: #858178;
+  --accent-primary: #d8af22;
+  --accent-primary-hover: #e6bd32;
+  --accent-primary-fg: #151511;
+  --accent-soft-bg: #3c3511;
+  --accent-soft-border: #766713;
+  --success-soft-bg: #18342a;
+  --success-soft-border: #2d6450;
+  --status-success: #66c29e;
+  --status-warning: #e6be55;
+  --status-error: #ef887b;
+  --status-info: #73b9cd;
+  --warning-soft-bg: #3b3215;
+  --warning-soft-border: #77631a;
+  --danger-soft-bg: #3b211d;
+  --danger-soft-border: #743a34;
+  --danger-soft-bg-strong: #45241f;
+  --accent-copper: #c4a400;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.35);
+  --shadow-lg: 0 12px 24px -10px rgb(0 0 0 / 0.45);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-ui);
+  background: var(--bg-app);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  padding: 0;
+  background-image: none;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
