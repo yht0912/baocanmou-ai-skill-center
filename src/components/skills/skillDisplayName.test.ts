@@ -31,6 +31,14 @@ describe('skill display names', () => {
     })
   })
 
+  it('adds a Chinese display name for the managed mono-color skill', () => {
+    expect(getSkillDisplayNames('mono-color')).toEqual({
+      primary: '单色编辑印刷',
+      secondary: 'mono-color',
+      translated: true,
+    })
+  })
+
   it('contains curated translations for the current managed inventory', () => {
     expect(Object.keys(skillChineseNameMap).length).toBeGreaterThanOrEqual(200)
   })

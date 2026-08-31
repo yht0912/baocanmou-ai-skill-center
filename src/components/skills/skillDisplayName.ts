@@ -136,6 +136,7 @@ export const skillChineseNameMap: Record<string, string> = {
   'media-use': '媒体素材使用规范',
   'minimalist-ui': '极简主义界面',
   'mint-watercolor-business-ppt': '薄荷水彩商务 PPT',
+  'mono-color': '单色编辑印刷',
   'motion-graphics': '动态图形设计',
   'multicolor-system-architecture-ppt': '多彩系统架构 PPT',
   'music-to-video': '音乐可视化视频',
