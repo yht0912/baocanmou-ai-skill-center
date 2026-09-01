@@ -39,6 +39,14 @@ describe('skill display names', () => {
     })
   })
 
+  it('adds a Chinese display name for the managed NotebookLM ingestion skill', () => {
+    expect(getSkillDisplayNames('qiaomu-anything-to-notebooklm')).toEqual({
+      primary: '全内容转 NotebookLM',
+      secondary: 'qiaomu-anything-to-notebooklm',
+      translated: true,
+    })
+  })
+
   it('contains curated translations for the current managed inventory', () => {
     expect(Object.keys(skillChineseNameMap).length).toBeGreaterThanOrEqual(200)
   })

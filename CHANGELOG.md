@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added the curated Chinese display name `全内容转 NotebookLM` for the managed `qiaomu-anything-to-notebooklm` Skill while preserving its English ID for Codex, Claude Code, and other compatible AI tools.
+
 ## [0.1.3] - 2026-09-01
 
 ### Added

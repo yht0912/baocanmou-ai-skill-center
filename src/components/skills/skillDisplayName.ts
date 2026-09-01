@@ -157,6 +157,7 @@ export const skillChineseNameMap: Record<string, string> = {
   'product-marketing': '产品营销',
   prototype: '产品原型设计',
   'pure-white-handdrawn-ppt-infographic': '纯白手绘 PPT 信息图',
+  'qiaomu-anything-to-notebooklm': '全内容转 NotebookLM',
   'qiaomu-design': '乔木设计顾问',
   'real-office-whiteboard-illustration': '真实办公室白板说明图',
   'red-blue-energy-training-ppt': '红蓝正能量培训 PPT',
