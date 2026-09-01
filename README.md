@@ -18,7 +18,9 @@ v1.0 采用包参谋独立定义的「方策五环」：
 
 应用不包含旧项目的数据库、安装器、同步引擎或界面模块。v1.0 核心见 [`src-tauri/src/center.rs`](src-tauri/src/center.rs) 与 [`src/App.tsx`](src/App.tsx)。
 
-![包参谋 AI 技能中心 v1.0 作战台，真实读取 194 项本机技能](docs/assets/app-v1-overview.png)
+App 图标与界面品牌标识统一由原创矢量母版 [`src/assets/baocanmou-mark.svg`](src/assets/baocanmou-mark.svg) 生成。
+
+![包参谋 AI 技能中心 v1.0 作战台，真实读取 194 项本机技能](docs/assets/app-v1-overview.jpg)
 
 ## 每个技能都能看懂
 

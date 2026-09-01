@@ -18,7 +18,9 @@ The BaoCanMou “Fangce Five-Loop” model defines the v1.0 product logic:
 
 The v1.0 application does not include the previous project's database, installer, sync engine, or interface modules. Its core is implemented in [`src-tauri/src/center.rs`](src-tauri/src/center.rs) and [`src/App.tsx`](src/App.tsx).
 
-![BaoCanMou AI Skill Center v1.0 command view reading 194 local Skills](docs/assets/app-v1-overview.png)
+The App icon and in-product brand mark are generated from the same original vector master at [`src/assets/baocanmou-mark.svg`](src/assets/baocanmou-mark.svg).
+
+![BaoCanMou AI Skill Center v1.0 command view reading 194 local Skills](docs/assets/app-v1-overview.jpg)
 
 ## Every Skill is understandable
 

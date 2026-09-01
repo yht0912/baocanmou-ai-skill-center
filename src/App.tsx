@@ -3,24 +3,18 @@ import { openUrl } from '@tauri-apps/plugin-opener'
 import {
   Activity,
   ArrowUpRight,
-  BadgeCheck,
   BookOpenText,
-  Boxes,
   Check,
   ChevronRight,
   CircleAlert,
   Database,
   Globe2,
   Languages,
-  LayoutDashboard,
   Link2,
   LoaderCircle,
-  Network,
   RefreshCw,
   Search,
-  Settings2,
   ShieldCheck,
-  Sparkles,
   Unlink,
   X,
 } from 'lucide-react'
@@ -46,12 +40,12 @@ import type {
   ToolStatus,
 } from './contracts'
 import { getCopy } from './i18n'
+import brandMark from './assets/baocanmou-mark.svg'
 
 type Section = 'command' | 'assets' | 'intelligence' | 'tools' | 'audit' | 'about'
 
 const catalog = catalogDocument as CatalogDocument
 
-const navIcons = [LayoutDashboard, Boxes, Sparkles, Network, ShieldCheck, Settings2]
 const sections: Section[] = ['command', 'assets', 'intelligence', 'tools', 'audit', 'about']
 
 function isDesktopRuntime(): boolean {
@@ -191,7 +185,7 @@ export default function App() {
       <aside className="sidebar">
         <div className="window-drag" data-tauri-drag-region />
         <div className="brand-lockup">
-          <img src="/logo-mark.png" alt="" />
+          <img src={brandMark} alt="" />
           <div>
             <strong>{t.brand}</strong>
             <span>{t.version}</span>
@@ -199,10 +193,9 @@ export default function App() {
         </div>
         <nav className="primary-nav" aria-label="Primary">
           {sections.map((item, index) => {
-            const Icon = navIcons[index]
             return (
               <button key={item} className={section === item ? 'active' : ''} onClick={() => chooseSection(item)}>
-                <Icon size={18} strokeWidth={1.8} />
+                <b className="nav-index">{String(index + 1).padStart(2, '0')}</b>
                 <span><strong>{t.nav[index]}</strong><small>{t.navHint[index]}</small></span>
                 <ChevronRight size={15} />
               </button>
@@ -282,21 +275,18 @@ function Loading({ copy }: { copy: string }) {
 function CommandPage({ snapshot, locale, onOpenAssets }: { snapshot: CenterSnapshot; locale: Locale; onOpenAssets: () => void }) {
   const t = getCopy(locale)
   const metrics = [
-    [t.assets, snapshot.summary.assetCount, Boxes],
-    [t.ready, snapshot.summary.readyCount, BadgeCheck],
-    [t.attention, snapshot.summary.attentionCount, CircleAlert],
-    [t.connections, snapshot.summary.connectionCount, Link2],
-    [t.chinese, snapshot.summary.chineseReadyCount, Languages],
-    [t.screenshots, snapshot.summary.screenshotCount, BookOpenText],
+    [t.assets, snapshot.summary.assetCount],
+    [t.ready, snapshot.summary.readyCount],
+    [t.attention, snapshot.summary.attentionCount],
+    [t.connections, snapshot.summary.connectionCount],
+    [t.chinese, snapshot.summary.chineseReadyCount],
+    [t.screenshots, snapshot.summary.screenshotCount],
   ] as const
   return (
     <div className="page command-page">
       <section className="hero-panel">
         <div className="hero-copy">
-          <span className="eyebrow">BAOCANMOU ORIGINAL CORE</span>
           <h1>{locale === 'zh' ? '管理能力，不堆数量。' : 'Govern capability, not volume.'}</h1>
-          <p>{t.fiveLoopDesc}</p>
-          <button onClick={onOpenAssets}>{locale === 'zh' ? '进入能力资产' : 'Open capability assets'} <ArrowUpRight size={16} /></button>
         </div>
         <div className="hero-mark" aria-hidden="true">
           <div className="strategy-path"><i /><i /><i /><i /><i /></div>
@@ -306,8 +296,8 @@ function CommandPage({ snapshot, locale, onOpenAssets }: { snapshot: CenterSnaps
       </section>
 
       <section className="metric-row">
-        {metrics.map(([label, value, Icon]) => (
-          <article key={label}><Icon size={18} /><span>{label}</span><strong>{value}</strong></article>
+        {metrics.map(([label, value], index) => (
+          <article key={label}><b className="metric-index">0{index + 1}</b><span>{label}</span><strong>{value}</strong></article>
         ))}
       </section>
 
@@ -520,7 +510,7 @@ function AboutPage({ locale, onOpen }: { locale: Locale; onOpen: (url: string) =
   return (
     <div className="page about-page">
       <section className="about-hero">
-        <img src="/logo-mark.png" alt="" />
+        <img src={brandMark} alt="" />
         <span className="eyebrow">BAOCANMOU · WWW.BCMSJ.COM</span>
         <h1>{t.aboutTitle}</h1>
         <p>{t.aboutBody}</p>
