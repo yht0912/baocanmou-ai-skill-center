@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-09-01
+
+### 新增
+
+- 为已托管的 `qiaomu-anything-to-notebooklm` Skill 增加中文主显示名“全内容转 NotebookLM”，保留英文 ID 作为 Codex、Claude Code 和其他 AI 工具的兼容调用标识。
+
 ## [0.1.3] - 2026-09-01
 
 ### 新增
