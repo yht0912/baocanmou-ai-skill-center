@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-09-01
+
 ### Added
 
 - Added the curated Chinese display name `单色编辑印刷` for the managed `mono-color` Skill while preserving its English ID for Codex, Claude Code, and other compatible AI tools.

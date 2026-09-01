@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-09-01
+
 ### 新增
 
 - 为已托管的 `mono-color` Skill 增加中文主显示名“单色编辑印刷”，保留英文 ID 作为 Codex、Claude Code 和其他 AI 工具的兼容调用标识。
