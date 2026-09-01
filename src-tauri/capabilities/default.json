@@ -1,25 +1,19 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "enables the default permissions",
-  "windows": [
-    "main"
-  ],
+  "description": "BaoCanMou local skill governance permissions",
+  "windows": ["main"],
   "permissions": [
     "core:default",
     "core:window:allow-start-dragging",
     "core:window:allow-start-resize-dragging",
-    "dialog:default",
-    "process:allow-restart",
-    "dialog:allow-open",
     {
       "identifier": "opener:allow-open-url",
       "allow": [
-        {
-          "url": "https://github.com/yht0912/baocanmou-ai-skill-center"
-        }
+        { "url": "https://github.com/*" },
+        { "url": "https://skills.sh/*" },
+        { "url": "https://www.bcmsj.com/*" }
       ]
-    },
-    "updater:default"
+    }
   ]
 }

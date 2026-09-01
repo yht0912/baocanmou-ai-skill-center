@@ -16,8 +16,8 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const OUTPUT_FILE = 'featured-skills.json'
-const DIGEST_ZH_FILE = 'docs/包参谋热门技能观察.md'
-const DIGEST_EN_FILE = 'docs/Popular-Skills-Digest.en.md'
+const DIGEST_ZH_FILE = 'docs/热门能力情报.md'
+const DIGEST_EN_FILE = 'docs/Capability-Intelligence-Digest.en.md'
 const SKILLS_SH_URL = 'https://skills.sh/'
 const MAX_SKILLS = 300
 const MAX_SKILLS_PER_REPOSITORY = 20
@@ -464,7 +464,7 @@ function movementLabel(skill, previousRanks, language) {
 function renderDigest(output, previousOutput, language) {
   const zh = language === 'zh'
   const previousRanks = new Map((previousOutput?.skills || []).map((skill) => [skill.slug, skill.rank]))
-  const title = zh ? '# 包参谋热门技能观察' : '# BaoCanMou Popular Skills Digest'
+  const title = zh ? '# 包参谋能力情报摘要' : '# BaoCanMou Capability Intelligence Digest'
   const intro = zh
     ? '本页由公开数据定期生成，展示包参谋推荐榜前 30 名及其主要入选理由。推荐分用于筛选，不是安全认证；任何第三方 Skill 安装前仍需人工查看源码、依赖和权限。'
     : 'This page is generated periodically from public data. It shows the top 30 BaoCanMou recommendations and the main selection reasons. The recommendation score is a discovery filter, not a security certification; inspect source, dependencies, and permissions before installation.'
@@ -576,7 +576,7 @@ async function main() {
     updated_at: new Date().toISOString(),
     total: skills.length,
     methodology: {
-      name: 'baocanmou-recommendation-v2',
+      name: 'baocanmou-capability-intelligence-v3',
       note_zh: '包参谋推荐分综合公开热度、维护、许可证清晰度和能力方向，仅用于发现，不代表安全认证。',
       note_en: 'The BaoCanMou recommendation score combines public adoption, maintenance, licensing clarity, and capability fit for discovery only; it is not a security certification.',
       sources: ['https://skills.sh/', 'https://api.github.com/'],

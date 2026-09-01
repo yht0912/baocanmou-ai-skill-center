@@ -1,4 +1,4 @@
 interface:
   display_name: "包参谋 AI 技能中心"
-  short_description: "统一治理并同步 Codex、Claude 等 AI 的共享技能"
-  default_prompt: "盘点当前共享技能及各 AI 工具入口，先给出只读审计结果，再按授权执行安装、同步、升级或回滚。"
+  short_description: "用方策五环治理并解释跨 AI 共享技能"
+  default_prompt: "使用方策五环盘点当前共享技能，为每个能力补齐中文名称、用途、特点与视觉预览；先给只读证据，再按授权连接并验收。"

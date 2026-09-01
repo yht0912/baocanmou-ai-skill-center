@@ -1,4 +1,4 @@
-name: Refresh BaoCanMou Skill Recommendations
+name: Refresh BaoCanMou Capability Intelligence
 
 on:
   schedule:
@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: refresh-baocanmou-skill-recommendations
+  group: refresh-baocanmou-capability-intelligence
   cancel-in-progress: false
 
 jobs:
@@ -42,11 +42,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add featured-skills.json docs/包参谋热门技能观察.md docs/Popular-Skills-Digest.en.md
+          git add featured-skills.json docs/热门能力情报.md docs/Capability-Intelligence-Digest.en.md
           if git diff --cached --quiet; then
             echo "No meaningful recommendation changes"
             exit 0
           fi
-          git commit -m "chore: refresh BaoCanMou skill recommendations"
+          git commit -m "chore: refresh BaoCanMou capability intelligence"
           git pull --rebase origin main
           git push origin HEAD:main

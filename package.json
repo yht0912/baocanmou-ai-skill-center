@@ -1,17 +1,14 @@
 {
   "name": "baocanmou-ai-skill-center",
   "private": true,
-  "version": "0.1.4",
-  "description": "BaoCanMou's local-first bilingual AI skill governance center for Codex, Claude Code, and other AI tools.",
+  "version": "1.0.0",
+  "description": "BaoCanMou original local-first AI skill governance center.",
   "author": "BaoCanMou (包参谋) <https://www.bcmsj.com>",
   "license": "MIT",
   "homepage": "https://www.bcmsj.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yht0912/baocanmou-ai-skill-center.git"
-  },
-  "bugs": {
-    "url": "https://github.com/yht0912/baocanmou-ai-skill-center/issues"
   },
   "type": "module",
   "scripts": {
@@ -33,40 +30,15 @@
     "version:check": "node scripts/version.mjs check",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:icon:desktop": "node scripts/tauri-icon-desktop.mjs",
     "tauri:build": "npm run version:check && tauri build",
-    "tauri:build:mac:dmg": "npm run tauri:build -- --bundles dmg",
-    "tauri:build:mac:universal:dmg": "npm run tauri:build -- --target universal-apple-darwin --bundles dmg",
-    "tauri:build:win:exe": "npm run tauri:build -- --bundles nsis",
-    "tauri:build:win:msi": "npm run tauri:build -- --bundles msi",
-    "tauri:build:win:all": "npm run tauri:build -- --bundles msi,nsis",
-    "tauri:build:linux:deb": "npm run tauri:build -- --bundles deb",
-    "tauri:build:linux:appimage": "npm run tauri:build -- --bundles appimage",
-    "tauri:build:linux:all": "npm run tauri:build -- --bundles deb,appimage"
+    "tauri:build:mac:dmg": "npm run tauri:build -- --bundles dmg"
   },
   "dependencies": {
-    "@lobehub/icons-static-svg": "^1.91.0",
-    "@tailwindcss/vite": "^4.1.18",
     "@tauri-apps/api": "^2.9.1",
-    "@tauri-apps/plugin-dialog": "^2.5.3",
     "@tauri-apps/plugin-opener": "^2.5.3",
-    "@tauri-apps/plugin-process": "^2.3.1",
-    "@tauri-apps/plugin-updater": "^2.5.3",
-    "clsx": "^2.1.1",
-    "i18next": "^25.7.4",
-    "i18next-browser-languagedetector": "^8.2.0",
     "lucide-react": "^0.562.0",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "react-i18next": "^16.5.3",
-    "react-markdown": "^10.1.0",
-    "react-router-dom": "^7.12.0",
-    "react-syntax-highlighter": "^16.1.1",
-    "remark-frontmatter": "^5.0.0",
-    "remark-gfm": "^4.0.1",
-    "sonner": "^2.0.7",
-    "tailwind-merge": "^3.4.0",
-    "tailwindcss": "^4.1.18"
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
@@ -74,7 +46,6 @@
     "@types/node": "^24.10.7",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
-    "@types/react-syntax-highlighter": "^15.5.13",
     "@vitejs/plugin-react": "^5.1.2",
     "eslint": "^9.39.2",
     "eslint-plugin-react-hooks": "^7.0.1",

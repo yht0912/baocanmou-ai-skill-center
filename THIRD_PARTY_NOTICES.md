@@ -1,21 +1,15 @@
-# 第三方声明 / Third-Party Notices
+# 第三方依赖声明 / Third-Party Dependency Notice
 
-## Skills Hub
+包参谋 AI 技能中心 v1.0 的产品逻辑与项目源码由包参谋维护。构建过程使用通用开源依赖，包括 React、Tauri、Lucide、Serde、SHA-2 及其传递依赖；这些软件继续适用各自随包发布的许可证。
 
-- 项目：`qufei1993/skills-hub`
-- 上游地址：<https://github.com/qufei1993/skills-hub>
-- 定制基线：`9d9f490f8ae0a3f91d714867cffe3927ada6e8ae`
-- 许可证：MIT
-- 上游许可证版权：`Copyright (c) 2026 Skills Hub contributors`
+准确依赖版本以 `package-lock.json` 与 `src-tauri/Cargo.lock` 为准。发布者和再分发者应使用 npm 与 Cargo 的许可证审计工具生成对应版本的完整依赖许可清单。
 
-「包参谋 AI 技能中心」保留上游的 MIT 许可证和版权声明，并在其基础上增加包参谋原创的中文语义层、跨 AI 治理方案、视觉系统和双语文档。
+`featured-skills.json` 只保存外部能力索引与公开指标，不包含对应 Skill 源码。索引中的名称、仓库、描述和许可证字段用于识别与审计，相关权利仍归各自权利人所有。
 
-本项目的 npm 和 Cargo 依赖各自遵循其声明的许可证；构建产物中的第三方代码不因本文档而变更授权条件。
+---
 
-## English
+BaoCanMou AI Skill Center v1.0 uses general open-source dependencies including React, Tauri, Lucide, Serde, SHA-2, and their transitive dependencies. They remain governed by their respective licenses distributed with those packages.
 
-BaoCanMou AI Skill Center is customized from `qufei1993/skills-hub` at commit `9d9f490f8ae0a3f91d714867cffe3927ada6e8ae`. The upstream project is licensed under MIT and its license identifies `Copyright (c) 2026 Skills Hub contributors`.
+See `package-lock.json` and `src-tauri/Cargo.lock` for exact versions. Distributors should generate a version-matched license inventory with npm and Cargo license-audit tooling.
 
-This project retains the upstream MIT license and copyright notice while adding BaoCanMou's Chinese semantic layer, cross-AI governance model, visual system, and bilingual documentation.
-
-All npm and Cargo dependencies remain governed by their respective licenses. This notice does not alter the terms that apply to third-party code in a build.
+`featured-skills.json` contains external index metadata and public signals only, not the referenced Skill source code. Names, repositories, descriptions, and license fields remain attributable to their respective rights holders.
