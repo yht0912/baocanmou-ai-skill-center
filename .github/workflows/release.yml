@@ -49,7 +49,8 @@ jobs:
           releaseName: 包参谋 AI 技能中心 ${{ github.ref_name }}
           releaseBody: |
             包参谋原创方策五环核心，中英文双语版本。
-            所有本机技能均提供中文名称、用途、特点与视觉预览。
+            所有本机技能均提供中文名称、主要用途与能力特点；技能自带真实截图时在详情中补充展示。
+            App 图标与左上角标志统一采用包参谋原创方策标志。
             包参谋 · www.bcmsj.com · 开源交流学习使用
           releaseDraft: false
           prerelease: false
