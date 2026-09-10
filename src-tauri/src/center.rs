@@ -842,12 +842,14 @@ fn translate_token(token: &str) -> String {
         "skill" | "skills" => "技能",
         "social" => "社交内容",
         "spreadsheet" | "spreadsheets" => "电子表格",
+        "style" => "风格",
         "strategy" => "策略",
         "sync" => "同步",
         "test" | "testing" => "测试",
         "tool" | "tools" => "工具",
         "translate" | "translation" => "翻译",
         "ui" => "界面",
+        "prompter" => "提示词",
         "ux" => "体验",
         "video" => "视频",
         "visual" | "visualization" => "视觉",
@@ -1092,6 +1094,14 @@ fn translate_token(token: &str) -> String {
 }
 
 fn purpose_for_skill(id: &str, name_zh: &str, summary_en: &str, category: &str) -> String {
+    if id == "handdraw-style-prompter" {
+        return "按 001–261 编号选择手绘风格，生成中英文提示词，并按模型能力决定是否引用风格图。"
+            .to_owned();
+    }
+    if id == "gpt-image-2-5-ecommerce" {
+        return "根据商品图和平台要求，制作电商主图、详情图、试穿图、换背景及多语言素材提示词。"
+            .to_owned();
+    }
     if category == "image" {
         return "生成或优化插画、配图、标志等视觉素材。".to_owned();
     }
@@ -1730,6 +1740,14 @@ mod tests {
             chinese_name("video-maker", "video-maker", "video"),
             "视频·制作"
         );
+        assert_eq!(
+            chinese_name(
+                "handdraw-style-prompter",
+                "handdraw-style-prompter",
+                "image"
+            ),
+            "手绘·风格·提示词"
+        );
     }
 
     #[test]
@@ -1751,6 +1769,10 @@ mod tests {
                 "presentation"
             ),
             "把网页、文档、音视频等资料整理后导入 NotebookLM。"
+        );
+        assert_eq!(
+            purpose_for_skill("gpt-image-2-5-ecommerce", "GPT·图像·2·5·电商", "", "image"),
+            "根据商品图和平台要求，制作电商主图、详情图、试穿图、换背景及多语言素材提示词。"
         );
     }
 
