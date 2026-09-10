@@ -1,6 +1,6 @@
 [package]
 name = "baocanmou-ai-skill-center"
-version = "1.1.1"
+version = "1.1.2"
 description = "包参谋原创跨 AI 技能治理中心"
 authors = ["BaoCanMou (包参谋)"]
 license = "MIT"

@@ -752,6 +752,9 @@ fn is_image_generation_capability(text: &str) -> bool {
 }
 
 fn chinese_name(id: &str, name_en: &str, category: &str) -> String {
+    if id == "z-video-downloader" {
+        return "视频·下载·归档".to_owned();
+    }
     if contains_cjk(name_en) {
         return name_en.to_owned();
     }
@@ -1100,6 +1103,10 @@ fn purpose_for_skill(id: &str, name_zh: &str, summary_en: &str, category: &str) 
     }
     if id == "gpt-image-2-5-ecommerce" {
         return "根据商品图和平台要求，制作电商主图、详情图、试穿图、换背景及多语言素材提示词。"
+            .to_owned();
+    }
+    if id == "z-video-downloader" {
+        return "下载有权保存的视频、字幕和封面，支持批量、断点续传、历史去重与中文报告。"
             .to_owned();
     }
     if category == "image" {
@@ -1748,6 +1755,10 @@ mod tests {
             ),
             "手绘·风格·提示词"
         );
+        assert_eq!(
+            chinese_name("z-video-downloader", "z-video-downloader", "video"),
+            "视频·下载·归档"
+        );
     }
 
     #[test]
@@ -1773,6 +1784,10 @@ mod tests {
         assert_eq!(
             purpose_for_skill("gpt-image-2-5-ecommerce", "GPT·图像·2·5·电商", "", "image"),
             "根据商品图和平台要求，制作电商主图、详情图、试穿图、换背景及多语言素材提示词。"
+        );
+        assert_eq!(
+            purpose_for_skill("z-video-downloader", "视频·下载·归档", "", "video"),
+            "下载有权保存的视频、字幕和封面，支持批量、断点续传、历史去重与中文报告。"
         );
     }
 
