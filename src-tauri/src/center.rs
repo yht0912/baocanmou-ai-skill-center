@@ -372,7 +372,7 @@ fn inspect_skill(
         .map(|value| value.summary_zh.clone())
         .or_else(|| metadata_summary_zh.cloned())
         .unwrap_or(generated_summary);
-    let purpose_en = purpose_for_category(&category, &name_en, "en");
+    let purpose_en = purpose_en_for_skill(id, &name_en, &category);
     let translation_mode = if custom.is_some() {
         "custom"
     } else if metadata_name_zh.is_some() || contains_cjk(&name_en) {
@@ -752,8 +752,14 @@ fn is_image_generation_capability(text: &str) -> bool {
 }
 
 fn chinese_name(id: &str, name_en: &str, category: &str) -> String {
-    if id == "z-video-downloader" {
-        return "视频·下载·归档".to_owned();
+    match id {
+        "z-video-downloader" => return "视频·下载·归档".to_owned(),
+        "haiming-app-monetization" => return "移动应用·付费转化".to_owned(),
+        "last30days" => return "近三十天·趋势研究".to_owned(),
+        "easel-content-workbench" => return "社媒内容·工作台".to_owned(),
+        "omnivoice-tts" => return "多语种·语音合成".to_owned(),
+        "freepep-catalog-auditor" => return "人教教材·目录核验".to_owned(),
+        _ => {}
     }
     if contains_cjk(name_en) {
         return name_en.to_owned();
@@ -1097,6 +1103,26 @@ fn translate_token(token: &str) -> String {
 }
 
 fn purpose_for_skill(id: &str, name_zh: &str, summary_en: &str, category: &str) -> String {
+    if id == "haiming-app-monetization" {
+        return "评估移动 App 的引导、付费墙、会员权益、套餐定价及购买恢复路径，并形成可验证的商业化方案。"
+            .to_owned();
+    }
+    if id == "last30days" {
+        return "研究最近 30 天的公开讨论与互动信号，区分各来源可用性并输出可追溯的趋势结论。"
+            .to_owned();
+    }
+    if id == "easel-content-workbench" {
+        return "连接本机 Easel，完成社媒选题、画像、内容制作与效果归因；真实发布需单独授权。"
+            .to_owned();
+    }
+    if id == "omnivoice-tts" {
+        return "连接本机 OmniVoice，完成多语种文字转语音、授权声音克隆与中英文声音风格设计。"
+            .to_owned();
+    }
+    if id == "freepep-catalog-auditor" {
+        return "查询和核验人教教材的学制、年级、学科、册次及官方阅读入口，不批量抓取教材正文。"
+            .to_owned();
+    }
     if id == "handdraw-style-prompter" {
         return "按 001–261 编号选择手绘风格，生成中英文提示词，并按模型能力决定是否引用风格图。"
             .to_owned();
@@ -1282,6 +1308,17 @@ fn purpose_for_skill(id: &str, name_zh: &str, summary_en: &str, category: &str) 
         _ => "为对应任务提供结构化步骤与质量检查",
     };
     format!("{name_zh}用于{fallback}。")
+}
+
+fn purpose_en_for_skill(id: &str, name_en: &str, category: &str) -> String {
+    match id {
+        "haiming-app-monetization" => "Review a mobile app's onboarding, paywall, benefits, pricing, purchase, and restore flow, then produce a testable monetization plan.".to_owned(),
+        "last30days" => "Research public discussion and engagement signals from the last 30 days, reporting source availability and traceable findings.".to_owned(),
+        "easel-content-workbench" => "Use the local Easel workbench for social-content planning, production, and attribution; real publishing requires separate approval.".to_owned(),
+        "omnivoice-tts" => "Use the local OmniVoice tool for multilingual TTS, consented voice cloning, and Chinese or English voice design.".to_owned(),
+        "freepep-catalog-auditor" => "Audit PEP textbook grade, subject, semester, and official reading entries without bulk scraping textbook content.".to_owned(),
+        _ => purpose_for_category(category, name_en, "en"),
+    }
 }
 
 fn purpose_for_category(category: &str, name: &str, locale: &str) -> String {
@@ -1759,6 +1796,38 @@ mod tests {
             chinese_name("z-video-downloader", "z-video-downloader", "video"),
             "视频·下载·归档"
         );
+        assert_eq!(
+            chinese_name(
+                "haiming-app-monetization",
+                "haiming-app-monetization",
+                "content"
+            ),
+            "移动应用·付费转化"
+        );
+        assert_eq!(
+            chinese_name("last30days", "last30days", "content"),
+            "近三十天·趋势研究"
+        );
+        assert_eq!(
+            chinese_name(
+                "easel-content-workbench",
+                "easel-content-workbench",
+                "content"
+            ),
+            "社媒内容·工作台"
+        );
+        assert_eq!(
+            chinese_name("omnivoice-tts", "omnivoice-tts", "general"),
+            "多语种·语音合成"
+        );
+        assert_eq!(
+            chinese_name(
+                "freepep-catalog-auditor",
+                "freepep-catalog-auditor",
+                "security"
+            ),
+            "人教教材·目录核验"
+        );
     }
 
     #[test]
@@ -1788,6 +1857,18 @@ mod tests {
         assert_eq!(
             purpose_for_skill("z-video-downloader", "视频·下载·归档", "", "video"),
             "下载有权保存的视频、字幕和封面，支持批量、断点续传、历史去重与中文报告。"
+        );
+        assert_eq!(
+            purpose_for_skill("haiming-app-monetization", "移动应用·付费转化", "", "content"),
+            "评估移动 App 的引导、付费墙、会员权益、套餐定价及购买恢复路径，并形成可验证的商业化方案。"
+        );
+        assert_eq!(
+            purpose_for_skill("last30days", "近三十天·趋势研究", "", "content"),
+            "研究最近 30 天的公开讨论与互动信号，区分各来源可用性并输出可追溯的趋势结论。"
+        );
+        assert_eq!(
+            purpose_en_for_skill("omnivoice-tts", "omnivoice-tts", "general"),
+            "Use the local OmniVoice tool for multilingual TTS, consented voice cloning, and Chinese or English voice design."
         );
     }
 
