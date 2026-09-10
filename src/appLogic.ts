@@ -1,6 +1,7 @@
 import type { CatalogEntry, Locale, SkillAsset } from './contracts'
 
 const categoryNames: Record<string, [string, string]> = {
+  image: ['图像生成', 'Image generation'],
   design: ['设计', 'Design'],
   development: ['开发', 'Development'],
   content: ['内容', 'Content'],
@@ -54,6 +55,7 @@ export function catalogPurpose(skill: Pick<CatalogEntry, 'name' | 'category'>, l
         ? ['通过追问澄清需求、暴露遗漏并形成可执行方案', 'Clarify requirements, expose gaps, and form an executable plan']
         : null
   const purposes: Record<string, [string, string]> = {
+    image: ['用于图像生成、插画、配图与标志设计', 'For image generation, illustration, supporting visuals, and logo design'],
     design: ['用于视觉、界面与设计质量相关任务', 'For visual, interface, and design-quality work'],
     development: ['用于代码开发、调试与工程交付', 'For coding, debugging, and engineering delivery'],
     content: ['用于内容策划、写作与传播优化', 'For content planning, writing, and distribution'],
@@ -86,7 +88,19 @@ export function filterSkills(skills: SkillAsset[], query: string, category: stri
     const categoryMatches = category === 'all' || skill.category === category
     if (!categoryMatches) return false
     if (!needle) return true
-    return [skill.nameZh, skill.nameEn, skill.id, skill.summaryZh, skill.summaryEn]
+    return [
+      skill.nameZh,
+      skill.nameEn,
+      skill.id,
+      skill.summaryZh,
+      skill.summaryEn,
+      skill.purposeZh,
+      skill.purposeEn,
+      ...skill.featuresZh,
+      ...skill.featuresEn,
+      categoryLabel(skill.category, 'zh'),
+      categoryLabel(skill.category, 'en'),
+    ]
       .join('\n')
       .toLocaleLowerCase()
       .includes(needle)

@@ -26,6 +26,7 @@ export interface SkillAsset {
   modifiedAt: number
   translationMode: 'native' | 'generated' | 'custom' | 'pending'
   previewKind: 'screenshot' | 'generated'
+  previewCount: number
   connections: SkillConnection[]
 }
 
@@ -57,8 +58,14 @@ export interface SkillContent {
   skillId: string
   path: string
   markdown: string
-  previewDataUrl?: string | null
+  previewImages: SkillPreviewImage[]
   previewKind: 'screenshot' | 'generated'
+}
+
+export interface SkillPreviewImage {
+  dataUrl: string
+  fileName: string
+  label: string
 }
 
 export interface CatalogEntry {

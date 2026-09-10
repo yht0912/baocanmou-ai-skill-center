@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "包参谋 AI 技能中心",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "identifier": "com.baocanmou.ai-skill-center",
   "build": {
     "frontendDist": "../dist",
@@ -19,7 +19,10 @@
         "minHeight": 660,
         "titleBarStyle": "Overlay",
         "hiddenTitle": true,
-        "trafficLightPosition": { "x": 17, "y": 18 },
+        "trafficLightPosition": {
+          "x": 17,
+          "y": 18
+        },
         "resizable": true,
         "fullscreen": false
       }

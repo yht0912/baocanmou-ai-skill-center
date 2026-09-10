@@ -6,9 +6,9 @@
 
 包参谋 AI 技能中心是一套本地优先的跨 AI 能力治理桌面应用。它读取用户自己的 `~/.agents/skills`，为每个 Skill 生成中文名称、明确用途、特点与风险提示，再通过受控链接编组到 Codex、Claude Code、Gemini CLI、Cursor、Hermes、ZCode、OpenCode 与 Windsurf。
 
-## v1.0 原创核心
+## v1.1 原创核心
 
-v1.0 采用包参谋独立定义的「方策五环」：
+v1.1 延续包参谋独立定义的「方策五环」：
 
 1. **识别**：只读盘点本机中心源和真实工具入口。
 2. **中文化**：保留英文 ID 与调用契约，生成可编辑的中文名称和说明。
@@ -16,7 +16,7 @@ v1.0 采用包参谋独立定义的「方策五环」：
 4. **编组**：macOS/Linux 使用软链接；Windows 优先链接，失败时使用带管理标记的副本。
 5. **验收**：连接后重新扫描真实路径，不用界面按钮状态冒充成功。
 
-应用不包含旧项目的数据库、安装器、同步引擎或界面模块。v1.0 核心见 [`src-tauri/src/center.rs`](src-tauri/src/center.rs) 与 [`src/App.tsx`](src/App.tsx)。
+应用不包含旧项目的数据库、安装器、同步引擎或界面模块。v1.1 核心见 [`src-tauri/src/center.rs`](src-tauri/src/center.rs) 与 [`src/App.tsx`](src/App.tsx)。
 
 App 图标与界面品牌标识统一由原创矢量母版 [`src/assets/baocanmou-mark.svg`](src/assets/baocanmou-mark.svg) 生成。
 
@@ -27,12 +27,14 @@ App 图标与界面品牌标识统一由原创矢量母版 [`src/assets/baocanmo
 - 中文主名称 + 英文原名/目录 ID。
 - 明确的「主要用途」与最多 5 条能力特点。
 - 技能卡第一视觉层直接展示“主要用途”和最多 3 条能力特点，不用装饰性大图抢占信息。
-- 技能目录有 PNG/JPG/WebP/GIF 时，只在详情中作为补充展示真实截图。
+- 图像生成技能可单独筛选，卡片显示实际可视案例数量。
+- 详情中最多同时展示 4 张技能目录自带的 PNG/JPG/WebP/GIF 开发者案例。
+- 开发者案例不足 3 张时如实标注，不使用其他技能图片或占位图补数。
 - 中文名称和说明可在 App 内校正，存放在本机 `~/.baocanmou/skill-center/translations.json`，不修改第三方 `SKILL.md`。
 
 ![包参谋 AI 技能中心能力资产页](docs/assets/app-v1-assets.jpg)
 
-技能详情把主要用途、能力特点、中文理解、工具编组与原始内容集中在同一处；真实截图仅在技能本身提供时补充展示。
+技能详情把主要用途、能力特点、中文理解、工具编组与原始内容集中在同一处；开发者案例仅在技能本身提供时展示。
 
 ![包参谋 AI 技能中心技能详情页](docs/assets/app-v1-skill-detail.jpg)
 
@@ -47,7 +49,7 @@ App 图标与界面品牌标识统一由原创矢量母版 [`src/assets/baocanmo
 - 不覆盖非本应用管理的目标目录。
 - 不删除中心源中的 Skill。
 - 只允许安全的单层 Skill ID，拒绝路径穿越。
-- `SKILL.md` 阅读上限 512 KB，预览图片上限 2 MB。
+- `SKILL.md` 阅读上限 512 KB，单张预览图片上限 4 MB。
 - 静态风险提示不等于安全认证。
 
 ## 开发与运行

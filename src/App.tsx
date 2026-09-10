@@ -9,6 +9,7 @@ import {
   CircleAlert,
   Database,
   Globe2,
+  Images,
   Languages,
   Link2,
   LoaderCircle,
@@ -74,6 +75,7 @@ function demoSnapshot(): CenterSnapshot {
     modifiedAt: 0,
     translationMode: 'generated',
     previewKind: 'generated',
+    previewCount: 0,
     connections: [],
   }))
   return {
@@ -390,7 +392,12 @@ function SkillCard({ skill, locale, onSelect }: { skill: SkillAsset; locale: Loc
       <div className="skill-card-features">
         {features.slice(0, 3).map((feature) => <span key={feature}><Check size={11} />{feature}</span>)}
       </div>
-      <div className="skill-meta"><span>{categoryLabel(skill.category, locale)}</span><span>{skill.fileCount} {t.files}</span><span>{connected} {t.linked}</span></div>
+      <div className="skill-meta">
+        <span>{categoryLabel(skill.category, locale)}</span>
+        {skill.previewCount > 0 && <span className="preview-count">{skill.previewCount} {t.visualExamples}</span>}
+        <span>{skill.fileCount} {t.files}</span>
+        <span>{connected} {t.linked}</span>
+      </div>
       <div className="skill-card-footer"><span className={`risk-pill ${skill.riskLevel}`}>{t.risk} · {t[skill.riskLevel]}</span><button>{t.details}<ChevronRight size={15} /></button></div>
     </article>
   )
@@ -577,10 +584,34 @@ function SkillDrawer({ skill, tools, locale, workingKey, onClose, onConnection, 
             <ul className="feature-list">{(locale === 'zh' ? skill.featuresZh : skill.featuresEn).map((feature) => <li key={feature}><Check size={13} />{feature}</li>)}</ul>
           </section>
 
-          {content?.previewDataUrl && (
+          {(skill.category === 'image' || (content?.previewImages.length ?? 0) > 0) && (
             <section className="drawer-section preview-section">
-              <div className="drawer-section-title"><strong>{t.preview}</strong><span>{t.realScreenshot}</span></div>
-              <img className="skill-real-preview" src={content.previewDataUrl} alt={`${skill.nameZh} ${t.preview}`} />
+              <div className="drawer-section-title">
+                <strong>{t.preview}</strong>
+                <span>{t.realScreenshot} · {content?.previewImages.length ?? 0}/{skill.previewCount}</span>
+              </div>
+              {!content ? (
+                <div className="source-placeholder"><LoaderCircle className="spin" size={18} /></div>
+              ) : content.previewImages.length ? (
+                <div className={`skill-preview-grid count-${content.previewImages.length}`}>
+                  {content.previewImages.map((preview, index) => (
+                    <figure key={`${preview.fileName}-${index}`}>
+                      <div className="preview-frame">
+                        <img src={preview.dataUrl} alt={`${locale === 'zh' ? skill.nameZh : skill.nameEn} ${t.preview} ${index + 1}`} />
+                        <b>{String(index + 1).padStart(2, '0')}</b>
+                      </div>
+                      <figcaption>{preview.label}</figcaption>
+                    </figure>
+                  ))}
+                </div>
+              ) : (
+                <div className="preview-empty"><Images size={22} /><span>{t.previewEmpty}</span></div>
+              )}
+              {content && (
+                <p className={(skill.previewCount < 3 ? 'preview-note shortfall' : 'preview-note')}>
+                  {skill.previewCount < 3 ? t.previewShortfall : t.previewPolicy}
+                </p>
+              )}
             </section>
           )}
 

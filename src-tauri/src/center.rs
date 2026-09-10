@@ -1,7 +1,7 @@
 use base64::Engine;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs;
 use std::io;
 use std::path::{Component, Path, PathBuf};
@@ -10,6 +10,8 @@ use std::time::UNIX_EPOCH;
 const SKILL_FILE: &str = "SKILL.md";
 const COPY_MARKER: &str = ".baocanmou-managed-copy";
 const MAX_SKILL_BYTES: u64 = 512 * 1024;
+const MAX_PREVIEW_BYTES: u64 = 4 * 1024 * 1024;
+const MAX_PREVIEW_IMAGES: usize = 4;
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -55,6 +57,7 @@ pub struct SkillAsset {
     pub modified_at: u64,
     pub translation_mode: String,
     pub preview_kind: String,
+    pub preview_count: usize,
     pub connections: Vec<SkillConnection>,
 }
 
@@ -82,8 +85,16 @@ pub struct SkillContent {
     pub skill_id: String,
     pub path: String,
     pub markdown: String,
-    pub preview_data_url: Option<String>,
+    pub preview_images: Vec<SkillPreviewImage>,
     pub preview_kind: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SkillPreviewImage {
+    pub data_url: String,
+    pub file_name: String,
+    pub label: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -237,17 +248,17 @@ pub fn read_skill(skill_id: &str) -> io::Result<SkillContent> {
             "SKILL.md exceeds the 512 KB safety limit",
         ));
     }
-    let preview_data_url = read_preview_data_url(&center.join(skill_id))?;
-    let preview_kind = if preview_data_url.is_some() {
-        "screenshot"
-    } else {
+    let preview_images = read_preview_images(&center.join(skill_id))?;
+    let preview_kind = if preview_images.is_empty() {
         "generated"
+    } else {
+        "screenshot"
     };
     Ok(SkillContent {
         skill_id: skill_id.to_owned(),
         path: display_path(&file),
         markdown: fs::read_to_string(&file)?,
-        preview_data_url,
+        preview_images,
         preview_kind: preview_kind.to_owned(),
     })
 }
@@ -372,7 +383,8 @@ fn inspect_skill(
     let (risk_level, risk_flags) = risk_assessment(&markdown);
     let file_count = count_files(path, 5).unwrap_or(0);
     let (features_zh, features_en) = feature_labels(path, &markdown, &risk_flags);
-    let preview_kind = if find_preview_image(path).is_some() {
+    let preview_count = find_preview_images(path).len();
+    let preview_kind = if preview_count > 0 {
         "screenshot"
     } else {
         "generated"
@@ -432,6 +444,7 @@ fn inspect_skill(
         modified_at,
         translation_mode: translation_mode.to_owned(),
         preview_kind: preview_kind.to_owned(),
+        preview_count,
         connections,
     }
 }
@@ -629,6 +642,40 @@ fn parse_frontmatter(markdown: &str) -> HashMap<String, String> {
 
 fn infer_category(text: &str) -> String {
     let lower = text.to_lowercase();
+    let identifier = lower.split_whitespace().next().unwrap_or("");
+    if identifier.contains("image-to-code") || lower.contains("image to code") {
+        return "development".to_owned();
+    }
+    if ["ppt", "slide", "presentation", "courseware"]
+        .iter()
+        .any(|term| identifier.contains(term))
+    {
+        return "presentation".to_owned();
+    }
+    if ["video", "remotion", "caption", "pixel2motion"]
+        .iter()
+        .any(|term| identifier.contains(term))
+    {
+        return "video".to_owned();
+    }
+    if is_image_generation_capability(identifier) {
+        return "image".to_owned();
+    }
+    if ["ppt", "slide", "presentation", "courseware"]
+        .iter()
+        .any(|term| lower.contains(term))
+    {
+        return "presentation".to_owned();
+    }
+    if ["video", "remotion", "caption", "pixel2motion"]
+        .iter()
+        .any(|term| lower.contains(term))
+    {
+        return "video".to_owned();
+    }
+    if is_image_generation_capability(&lower) {
+        return "image".to_owned();
+    }
     let categories = [
         (
             "design",
@@ -666,6 +713,42 @@ fn infer_category(text: &str) -> String {
         }
     }
     "general".to_owned()
+}
+
+fn is_image_generation_capability(text: &str) -> bool {
+    let lower = text.to_lowercase();
+    let excluded = [
+        "image-to-code",
+        "image to code",
+        "pixel2motion",
+        "batch edit photo",
+        "retouch portrait",
+        "screenshot",
+    ];
+    if excluded.iter().any(|term| lower.contains(term)) {
+        return false;
+    }
+    [
+        "imagegen",
+        "image generation",
+        "image generator",
+        "generate images",
+        "generated image",
+        "illustration",
+        "comic",
+        "logo-generator",
+        "logo generator",
+        "article visuals",
+        "transparent image",
+        "图像生成",
+        "图片生成",
+        "生成图片",
+        "生成图像",
+        "插画",
+        "漫画",
+    ]
+    .iter()
+    .any(|term| lower.contains(term))
 }
 
 fn chinese_name(id: &str, name_en: &str, category: &str) -> String {
@@ -800,6 +883,7 @@ fn translate_token(token: &str) -> String {
         "card" => "卡片",
         "cd" => "持续交付",
         "center" => "中心",
+        "character" => "角色",
         "chalkboard" => "黑板风",
         "chatroom" => "聊天室",
         "check" => "检查",
@@ -828,6 +912,7 @@ fn translate_token(token: &str) -> String {
         "devtools" => "开发者工具",
         "diagnosis" | "doctor" => "诊断",
         "director" => "导演",
+        "diary" => "日记",
         "doodle" => "涂鸦",
         "doubt" => "质疑",
         "driven" => "驱动",
@@ -849,6 +934,7 @@ fn translate_token(token: &str) -> String {
         "flow" => "流程",
         "four" => "四格",
         "frameworks" => "框架",
+        "fusion" => "融合",
         "gimi" => "Gimi",
         "girl" => "女孩",
         "glass" => "玻璃质感",
@@ -874,6 +960,7 @@ fn translate_token(token: &str) -> String {
         "incremental" => "增量",
         "industry" => "产业",
         "infographic" => "信息图",
+        "illustration" | "illustrations" => "插画",
         "instrumentation" => "监测埋点",
         "interface" => "界面接口",
         "interview" => "访谈",
@@ -899,6 +986,7 @@ fn translate_token(token: &str) -> String {
         "mono" => "单色",
         "multicolor" => "多彩",
         "musk" => "马斯克",
+        "native" => "原生",
         "neon" => "霓虹",
         "new" => "新式",
         "notebooklm" => "NotebookLM",
@@ -943,6 +1031,7 @@ fn translate_token(token: &str) -> String {
         "renhua" => "人话表达",
         "replica" => "复刻",
         "report" => "报告",
+        "recurring" => "连续",
         "resonate" => "共鸣",
         "restore" => "恢复",
         "resume" => "简历",
@@ -970,6 +1059,7 @@ fn translate_token(token: &str) -> String {
         "stitch" => "拼接",
         "story" => "故事",
         "system" => "系统",
+        "semantic" => "语义",
         "talking" => "口播",
         "task" => "任务",
         "taste" | "tasteskill" => "审美",
@@ -979,6 +1069,7 @@ fn translate_token(token: &str) -> String {
         "timeline" => "时间线",
         "title" => "标题",
         "training" => "培训",
+        "transparent" => "透明",
         "trust" => "可信发布",
         "update" => "更新",
         "use" => "使用",
@@ -1001,6 +1092,9 @@ fn translate_token(token: &str) -> String {
 }
 
 fn purpose_for_skill(id: &str, name_zh: &str, summary_en: &str, category: &str) -> String {
+    if category == "image" {
+        return "生成或优化插画、配图、标志等视觉素材。".to_owned();
+    }
     let key = format!("{id} {summary_en}").to_lowercase();
     let rules = [
         (
@@ -1159,6 +1253,7 @@ fn purpose_for_skill(id: &str, name_zh: &str, summary_en: &str, category: &str) 
         }
     }
     let fallback = match category {
+        "image" => "生成或优化插画、配图、标志等视觉素材",
         "design" => "把视觉需求转成可检查、可交付的设计结果",
         "development" => "辅助代码开发、工程判断与交付质量控制",
         "content" => "辅助内容策划、表达优化与传播交付",
@@ -1175,6 +1270,7 @@ fn purpose_for_skill(id: &str, name_zh: &str, summary_en: &str, category: &str) 
 fn purpose_for_category(category: &str, name: &str, locale: &str) -> String {
     let purpose = if locale == "zh" {
         match category {
+            "image" => "生成或优化插画、配图、标志等视觉素材",
             "design" => "把视觉需求转成可检查、可交付的设计结果",
             "development" => "辅助代码开发、工程判断与交付质量控制",
             "content" => "辅助内容策划、表达优化与传播交付",
@@ -1187,6 +1283,7 @@ fn purpose_for_category(category: &str, name: &str, locale: &str) -> String {
         }
     } else {
         match category {
+            "image" => "generate or refine illustrations, supporting images, logos, and other visual assets",
             "design" => "turn visual requirements into reviewable design deliverables",
             "development" => {
                 "support software development, engineering judgment, and delivery quality"
@@ -1299,29 +1396,43 @@ fn inspect_feature_files(
     }
 }
 
-fn find_preview_image(path: &Path) -> Option<PathBuf> {
+fn find_preview_images(path: &Path) -> Vec<PathBuf> {
     let mut candidates = Vec::new();
-    collect_preview_images(path, 4, &mut candidates);
+    collect_preview_images(path, 5, &mut candidates);
     candidates.sort_by_key(|candidate| {
+        let full_path = candidate.to_string_lossy().to_lowercase();
         let name = candidate
             .file_name()
             .and_then(|value| value.to_str())
             .unwrap_or("")
             .to_lowercase();
-        let priority = if name.contains("screenshot") || name.contains("preview") {
+        let duplicate_priority = if name.contains("thumb") || full_path.contains("/thumbnails/") {
+            1
+        } else {
             0
-        } else if name.contains("cover") || name.contains("example") {
+        };
+        let purpose_priority = if full_path.contains("/examples/")
+            || full_path.contains("/example/")
+            || full_path.contains("/showcase/")
+            || full_path.contains("/samples/")
+            || full_path.contains("/gallery/")
+            || name.contains("screenshot")
+            || name.contains("preview")
+        {
+            0
+        } else if name.contains("cover") || name.contains("example") || name.contains("sample") {
             1
         } else {
             2
         };
-        (priority, name)
+        (duplicate_priority, purpose_priority, name, full_path)
     });
-    candidates.into_iter().find(|candidate| {
+    candidates.retain(|candidate| {
         fs::metadata(candidate)
-            .map(|value| value.len() <= 2 * 1024 * 1024)
+            .map(|value| value.len() > 0 && value.len() <= MAX_PREVIEW_BYTES)
             .unwrap_or(false)
-    })
+    });
+    candidates
 }
 
 fn collect_preview_images(path: &Path, depth: usize, output: &mut Vec<PathBuf>) {
@@ -1337,6 +1448,13 @@ fn collect_preview_images(path: &Path, depth: usize, output: &mut Vec<PathBuf>) 
             continue;
         }
         if entry_path.is_dir() {
+            let directory = entry.file_name().to_string_lossy().to_lowercase();
+            if matches!(
+                directory.as_str(),
+                "node_modules" | "target" | "dist" | "build" | "vendor" | "__pycache__" | "icons"
+            ) {
+                continue;
+            }
             collect_preview_images(&entry_path, depth - 1, output);
             continue;
         }
@@ -1351,28 +1469,97 @@ fn collect_preview_images(path: &Path, depth: usize, output: &mut Vec<PathBuf>) 
     }
 }
 
-fn read_preview_data_url(path: &Path) -> io::Result<Option<String>> {
-    let Some(image) = find_preview_image(path) else {
-        return Ok(None);
-    };
-    let extension = image
-        .extension()
+fn read_preview_images(path: &Path) -> io::Result<Vec<SkillPreviewImage>> {
+    let mut previews = Vec::new();
+    for image in select_preview_images(path, MAX_PREVIEW_IMAGES) {
+        let extension = image
+            .extension()
+            .and_then(|value| value.to_str())
+            .unwrap_or("")
+            .to_lowercase();
+        let mime = match extension.as_str() {
+            "png" => "image/png",
+            "jpg" | "jpeg" => "image/jpeg",
+            "webp" => "image/webp",
+            "gif" => "image/gif",
+            _ => continue,
+        };
+        let file_name = image
+            .file_name()
+            .and_then(|value| value.to_str())
+            .unwrap_or("preview")
+            .to_owned();
+        let label = preview_label(path, &image);
+        let encoded = base64::engine::general_purpose::STANDARD.encode(fs::read(&image)?);
+        previews.push(SkillPreviewImage {
+            data_url: format!("data:{mime};base64,{encoded}"),
+            file_name,
+            label,
+        });
+    }
+    Ok(previews)
+}
+
+fn select_preview_images(path: &Path, limit: usize) -> Vec<PathBuf> {
+    let candidates = find_preview_images(path);
+    let mut selected = Vec::new();
+    let mut selected_paths = HashSet::new();
+    let mut style_directories = HashSet::new();
+
+    for candidate in &candidates {
+        let lower = candidate.to_string_lossy().to_lowercase();
+        let is_example = [
+            "/examples/",
+            "/example/",
+            "/showcase/",
+            "/samples/",
+            "/gallery/",
+        ]
+        .iter()
+        .any(|segment| lower.contains(segment));
+        let parent = candidate
+            .parent()
+            .map(Path::to_path_buf)
+            .unwrap_or_default();
+        if is_example && style_directories.insert(parent) {
+            selected_paths.insert(candidate.clone());
+            selected.push(candidate.clone());
+            if selected.len() == limit {
+                return selected;
+            }
+        }
+    }
+
+    for candidate in candidates {
+        if selected_paths.insert(candidate.clone()) {
+            selected.push(candidate);
+            if selected.len() == limit {
+                break;
+            }
+        }
+    }
+    selected
+}
+
+fn preview_label(root: &Path, image: &Path) -> String {
+    let file_name = image
+        .file_name()
         .and_then(|value| value.to_str())
-        .unwrap_or("")
-        .to_lowercase();
-    let mime = match extension.as_str() {
-        "png" => "image/png",
-        "jpg" | "jpeg" => "image/jpeg",
-        "webp" => "image/webp",
-        "gif" => "image/gif",
-        _ => return Ok(None),
-    };
-    let encoded = base64::engine::general_purpose::STANDARD.encode(fs::read(image)?);
-    Ok(Some(format!("data:{mime};base64,{encoded}")))
+        .unwrap_or("preview");
+    let parent_name = image
+        .parent()
+        .filter(|parent| *parent != root)
+        .and_then(Path::file_name)
+        .and_then(|value| value.to_str());
+    match parent_name {
+        Some(parent) if !parent.is_empty() => format!("{parent} / {file_name}"),
+        _ => file_name.to_owned(),
+    }
 }
 
 fn category_label(category: &str) -> &'static str {
     match category {
+        "image" => "图像生成",
         "design" => "设计",
         "development" => "开发",
         "content" => "内容",
@@ -1565,6 +1752,70 @@ mod tests {
             ),
             "把网页、文档、音视频等资料整理后导入 NotebookLM。"
         );
+    }
+
+    #[test]
+    fn separates_image_generation_from_image_to_code() {
+        assert_eq!(
+            infer_category("comic-explainer-illustration generates images"),
+            "image"
+        );
+        assert_eq!(
+            infer_category("logo-generator creates a brand mark"),
+            "image"
+        );
+        assert_eq!(
+            infer_category("image-to-code frontend conversion"),
+            "development"
+        );
+        assert_eq!(
+            infer_category("illustrated business ppt presentation"),
+            "presentation"
+        );
+        assert_eq!(infer_category("animated image video"), "video");
+    }
+
+    #[test]
+    fn reads_up_to_four_real_preview_images_and_skips_icons() {
+        let root = std::env::temp_dir().join(format!(
+            "baocanmou-preview-test-{}-{}",
+            std::process::id(),
+            now_seconds()
+        ));
+        let examples = root.join("examples");
+        let icons = root.join("icons");
+        let quirky = examples.join("quirky-sketch");
+        let warm = examples.join("warm-storybook");
+        let product = examples.join("product-proposal");
+        fs::create_dir_all(&quirky).expect("create quirky examples");
+        fs::create_dir_all(&warm).expect("create warm examples");
+        fs::create_dir_all(&product).expect("create product examples");
+        fs::create_dir_all(&icons).expect("create icons");
+        fs::write(quirky.join("style-a.png"), [1_u8, 2, 3]).expect("write preview");
+        fs::write(warm.join("style-b.jpg"), [1_u8, 2, 3]).expect("write preview");
+        fs::write(product.join("style-c.webp"), [1_u8, 2, 3]).expect("write preview");
+        fs::write(quirky.join("style-d.gif"), [1_u8, 2, 3]).expect("write preview");
+        fs::write(quirky.join("style-e.png"), [1_u8, 2, 3]).expect("write preview");
+        fs::write(icons.join("app-icon.png"), [1_u8]).expect("write icon");
+
+        let candidates = find_preview_images(&root);
+        let previews = read_preview_images(&root).expect("read previews");
+        assert_eq!(candidates.len(), 5);
+        assert_eq!(previews.len(), 4);
+        assert!(previews
+            .iter()
+            .all(|preview| preview.data_url.starts_with("data:image/")));
+        assert!(previews
+            .iter()
+            .all(|preview| preview.file_name.starts_with("style-")));
+        let first_three_styles = previews
+            .iter()
+            .take(3)
+            .map(|preview| preview.label.split(" / ").next().unwrap_or(""))
+            .collect::<HashSet<_>>();
+        assert_eq!(first_three_styles.len(), 3);
+
+        fs::remove_dir_all(root).expect("remove preview fixture");
     }
 
     #[test]

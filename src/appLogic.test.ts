@@ -23,6 +23,7 @@ const skill: SkillAsset = {
   modifiedAt: 0,
   translationMode: 'custom',
   previewKind: 'generated',
+  previewCount: 0,
   connections: [],
 }
 
@@ -30,12 +31,15 @@ describe('BaoCanMou application logic', () => {
   it('searches both Chinese and English fields', () => {
     expect(filterSkills([skill], '代码', 'all')).toHaveLength(1)
     expect(filterSkills([skill], 'review', 'all')).toHaveLength(1)
+    expect(filterSkills([skill], '结构化评审', 'all')).toHaveLength(1)
+    expect(filterSkills([skill], '代码质量', 'all')).toHaveLength(1)
     expect(filterSkills([skill], 'video', 'all')).toHaveLength(0)
   })
 
   it('uses bilingual labels', () => {
     expect(categoryLabel('development', 'zh')).toBe('开发')
     expect(categoryLabel('development', 'en')).toBe('Development')
+    expect(categoryLabel('image', 'zh')).toBe('图像生成')
     expect(recommendationReason('high-adoption', 'zh')).toBe('采用量高')
   })
 
